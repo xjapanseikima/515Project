@@ -35,7 +35,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # ASML {#section-1-1}
 ```{r ASML}
 library(quantmod)
-data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+data.ASML <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ASML.csv",header=TRUE)
 head(data.ASML) 
 class(data.ASML$Date) 
 date <- as.Date(data.ASML$Date,format="%Y-%m-%d")  
@@ -56,7 +56,7 @@ summary(data.ASML)
 
 ```{r CRM}
 library(quantmod)
-data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/CRM.csv",header=TRUE)
 head(data.CRM) 
 class(data.CRM$Date) 
 date <- as.Date(data.CRM$Date,format="%Y-%m-%d")  
@@ -75,7 +75,7 @@ summary(data.CRM)
 ```
 ## NLY {#section-1-5}
 ```{r}
-data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/NLY.csv",header=TRUE)
 head(data.NLY) 
 class(data.NLY$Date) 
 date <- as.Date(data.NLY$Date,format="%Y-%m-%d")  
@@ -96,7 +96,7 @@ summary(data.NLY)
 ## PLD {#section-1-6}
 ```{r PLD}
 library(quantmod)
-data.PLD <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/PLD.csv",header=TRUE)
+data.PLD <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/PLD.csv",header=TRUE)
 head(data.PLD) 
 class(data.PLD$Date) 
 date <- as.Date(data.PLD$Date,format="%Y-%m-%d")  
@@ -118,7 +118,7 @@ summary(data.PLD)
 ## XOM {#section-1-3}
 ```{r XOM}
 library(quantmod)
-data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/XOM.csv",header=TRUE)
 head(data.XOM) 
 class(data.XOM$Date) 
 date <- as.Date(data.XOM$Date,format="%Y-%m-%d")  
@@ -138,7 +138,7 @@ summary(data.XOM)
 ## ET {#section-1-4}
 ```{r ET}
 library(quantmod)
-data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ET.csv",header=TRUE)
 head(data.ET) 
 class(data.ET$Date) 
 date <- as.Date(data.ET$Date,format="%Y-%m-%d")  
@@ -191,12 +191,12 @@ chartSeries( XOM.ohlc,name="XOM OHLC")
 ## Develop a plot comparing the capital gains by sector{#section-3}
 ```{r Captial gain in each sector}
 #ASML
-data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
-data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
-data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
-data.PLD <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/PLD.csv",header=TRUE)
-data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
-data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+data.ASML <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ASML.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/CRM.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/NLY.csv",header=TRUE)
+data.PLD <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/PLD.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/XOM.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ET.csv",header=TRUE)
 
 
 #only 2009 
@@ -294,8 +294,8 @@ legend("topleft",
 ### Picking Engery sector to analyze
 ```{r SMA}
 library(ggplot2)
-data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
-data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/XOM.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ET.csv",header=TRUE)
 
 
 colnames(data.XOM)[1] <- "Date"
@@ -324,12 +324,12 @@ plot(Energy.sma$Date,
 
 ## Bollinger Bands Plot in my profolio{#section-5}
 ```{r Bollinger Bands}
-data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
-data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
-data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
-data.PLD <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/PLD.csv",header=TRUE)
-data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
-data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+data.ASML <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ASML.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/CRM.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/NLY.csv",header=TRUE)
+data.PLD <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/PLD.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/XOM.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ET.csv",header=TRUE)
 
 colnames(data.XOM)[1] <- "Date"
 Total.bb <- data.frame(data.XOM[, 1])
@@ -345,7 +345,7 @@ Total.bb$sd <- rollapply(Total.bb$Close,width = 20,FUN = sd,fill = NA)
 
 Total.bb[c(1:3,nrow(Total.bb)),]
 
-Total.Five <- subset(Total.bb, Date > as.Date('2007-01-01'))
+# Total.Five <- subset(Total.bb, Date > as.Date('2011-01-01'))
 Total.Five[c(1:3,nrow(Total.Five)),]
 
 Total.Five$sd2up <- Total.Five$avg+2*Total.Five$sd
