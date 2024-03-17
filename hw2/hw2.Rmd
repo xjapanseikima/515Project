@@ -1,0 +1,713 @@
+---
+title: "Hw2"
+author: "Chun-Yu Tseng"
+date: "2024-02-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part A – Individual Security Returns  
+- Calculate Returns
+    * [a Calculate portfolio price returns for the homework period](#section-1-1)
+- Dividend reinvestment strategy  
+  * [Calculate portfolio total gross returns for the homework period](#section-2-1)  
+  * [Calculate portfolio logarithmic gross returns for the homework period](#section-2-2)  
+  * [Are the results the same?](#section-2-3)
+- [Plot a comparison of Total Price returns and Total Gross returns](#section-2-4)
+
+## Part B – Portfolio Returns
+- Use the same investment period and the same stocks
+  * [Create an equally-weighted portfolio (rebalance each quarter)](#section-3-1)
+  * [Create a value-weighted portfolio (rebalance each quarter)](#section-3-2)
+
+
+# Calculate portfolio price returns for the homework period {#section-1-1}
+The data I choose is ASML, CRM, NLY, XOM, and Calaucte the return in holding each stock for 5 years.
+```{r Loading Data and calcuate, echo=FALSE}
+library(xts)
+library(quantmod)
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+#ASML Data
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d") 
+data.ASML <- cbind(date, data.ASML[,-1])
+data.ASML <- data.ASML[order(data.ASML$date),]
+data.ASML <- xts(data.ASML[,2:7],order.by=data.ASML[,1])
+names(data.ASML) <- paste(c("ASML.Open","ASML.High","ASML.Low","ASML.Close","ASML.Adjusted","ASML.Volume"))
+#CRM Data
+data.CRM <- cbind(date, data.CRM[,-1])  
+data.CRM <- data.CRM[order(data.CRM$date),]
+data.CRM <- xts(data.CRM[,2:7],order.by=data.CRM[,1])
+names(data.CRM) <- paste(c("CRM.Open","CRM.High","CRML.Low","CRM.Close","CRM.Adjusted","CRM.Volume"))
+#NLY Data
+data.NLY <- cbind(date, data.NLY[,-1])  
+data.NLY <- data.NLY[order(data.NLY$date),]
+data.NLY <- xts(data.NLY[,2:7],order.by=data.NLY [,1])
+names(data.NLY) <- paste(c("NLY.Open","NLY.High","NLY.Low","NLY.Close","NLY.Adjusted","NLY.Volume"))
+#XOM Data
+data.XOM <- cbind(date, data.XOM[,-1])  
+data.XOM <- data.XOM[order(data.XOM$date),]
+data.XOM <- xts(data.XOM[,2:7],order.by=data.XOM[,1])
+names(data.XOM) <- paste(c("XOM.Open","XOM.High","XOM.Low","XOM.Close","XOM.Adjusted","XOM.Volume"))
+#Mulit all the data
+
+multi <- data.ASML[,5]
+multi <- merge(multi,data.CRM[,5])
+multi <- merge(multi,data.NLY[,5])
+multi <- merge(multi,data.XOM[,5])
+multi[c(1:3,nrow(multi)),]
+# #Print first and the five years later
+period.ret <- multi[c(1,nrow(multi)),]
+period.ret
+# #Calculate returns and buy each 1 stock
+rets <- lapply(period.ret,Delt)
+rets <- data.frame(rets)
+rets <- rets[2,]*100
+names(rets) <- paste(c("ASML","CRM","NLY","XOM"))
+rets
+ASML_buy <- 27.4
+CRM_buy <- 9.01
+NLY_buy <- 56.04
+XOM_buy<- 74.11
+total_price = (ASML_buy + CRM_buy + NLY_buy + XOM_buy)
+w.ASML_buy <- ASML_buy/(total_price)
+w.CRM_buy <- CRM_buy/(total_price)
+w.NLY_buy <- NLY_buy/(total_price)
+w.XOM_buy <- XOM_buy/(total_price)
+w.ASML_buy
+w.CRM_buy
+w.NLY_buy
+w.XOM_buy
+port.ret.4asset <- w.ASML_buy*rets$ASML + w.CRM_buy*rets$CRM + w.NLY_buy*rets$NLY + w.XOM_buy*rets$XOM
+sprintf("MY total return is %f" ,port.ret.4asset)
+```
+# Calculate portfolio price returns for the homework period {#section-2-1}
+```{r portfolio total gross returns, echo=FALSE}
+i.ASML <- 25000
+i.CRM <- 20000
+i.NLY <- 30000
+i.XOM <- 25000
+quantityASML = i.ASML/ASML_buy
+quantityCRM = i.CRM/CRM_buy
+quantityNLY = i.NLY/NLY_buy
+quantityXOM = i.XOM/XOM_buy
+totalGross = (data.ASML$ASML.Close[nrow(data.ASML)] * quantityASML +
+  data.CRM$CRM.Close[nrow(data.CRM)] * quantityCRM +
+  data.NLY$NLY.Close[nrow(data.NLY)] * quantityNLY +
+  data.XOM$XOM.Close[nrow(data.XOM)] * quantityXOM) - 100000
+sprintf("MY total gross return is %f" , totalGross)
+```
+
+# Calculate portfolio logarithmic gross returns for the homework period {#section-2-2}
+```{r, echo=FALSE}
+multiClose <- data.ASML[,4]
+multiClose <- merge(multiClose,data.CRM[,4])
+multiClose <- merge(multiClose,data.NLY[,4])
+multiClose <- merge(multiClose,data.XOM[,4])
+multiClose$ASML.Price.Ret=Delt(multiClose$ASML.Close)
+multiClose$CRM.Price.Ret=Delt(multiClose$CRM.Close)
+multiClose$NLY.Price.Ret=Delt(multiClose$NLY.Close)
+multiClose$XOM.Price.Ret=Delt(multiClose$XOM.Close)
+multiClose$Port.Ret=Delt(multiClose$ASML.Close+multiClose$CRM.Close
+                          +multiClose$NLY.Close+multiClose$XOM.Close)
+multiClose[1:4,]
+PortPriceTotlRet<-prod(multiClose$Port.Ret[2:nrow(multiClose),]+1)-1
+PortPriceTotlRet
+```
+# Are the results the same? {#section-2-3}
+```{r, echo=FALSE}
+multi$ASML.Ret=Delt(multi$ASML.Adjusted)
+multi$CRM.Ret=Delt(multi$CRM.Adjusted)
+multi$NLY.Ret=Delt(multi$NLY.Adjusted)
+multi$XOM.Ret=Delt(multi$XOM.Adjusted)
+multi$Total.Ret <- Delt(multi$ASML.Adjusted+multi$CRM.Adjusted + multi$NLY.Adjusted +multi$XOM.Adjusted)
+multi$Port.Tot.Ret<- Delt(multi$ASML.Adjusted+multi$CRM.Adjusted + multi$NLY.Adjusted +multi$XOM.Adjusted)
+multi$Port.Log.Tot.Ret<-log(multi$Port.Tot.Ret+1)
+multi[1:5,]
+Difference<-multi$Port.Tot.Ret-multi$Port.Log.Tot.Ret
+plot(Difference)
+print("The reuslut is a litte differeent betweeen ")
+```
+# Plot a comparison of Total Price returns and Total Gross returns {#section-2-4}
+```{r, echo=FALSE}
+multiClose$Port.Ret=Delt(multiClose$ASML.Close+multiClose$CRM.Close + multiClose$NLY.Close +multiClose$XOM.Close)
+
+multiClose[1:4,]
+
+multiClose<-multiClose[-1,]
+multiClose<-subset(multiClose,index(multiClose)>"2007-01-01")
+multiClose$indexV<-cumprod(multiClose$Port.Ret+1)
+
+multi<-multi[-1,]
+multi<-subset(multi,index(multi)>"2007-01-01")
+multi$TotalV<-cumprod(multi$Port.Tot.Ret+1)
+plot(multiClose$index, type = "l", xlab = "Date", ylab = "Return", main = "Gross Return vs. Total Return")
+
+# Add the second line to the plot
+lines(multi$TotalV, col = 'green')
+
+# Add a legend to differentiate between the two lines
+legend("topright", legend = c("Gross Return", "Total Return"), col = c("black", "green"), lty = 1)
+ 
+```
+
+# Create an equally-weighted portfolio (rebalance each quarter) {#section-3-1}
+```{r, echo=FALSE}
+multi_eq <- data.ASML[,5]
+multi_eq <- merge(multi_eq,data.CRM[,5])
+multi_eq <- merge(multi_eq,data.XOM[,5])
+multi_eq <- merge(multi_eq,data.NLY[,5])
+multi_eq$ASML.Ret=Delt(multi_eq$ASML.Adjusted)
+multi_eq$CRM.Ret=Delt(multi_eq$CRM.Adjusted)
+multi_eq$XOM.Ret=Delt(multi_eq$XOM.Adjusted)
+multi_eq$NLY.Ret=Delt(multi_eq$NLY.Adjusted)
+#Q1
+ew.q1 <- subset(multi_eq, index(multi_eq) > "2007-01-01")
+ew.q1 <- subset(ew.q1, index(ew.q1) < "2007-03-31")
+ew.q1[c(1:4,nrow(ew.q1)),]
+ew.q1$ASML <- cumprod(ew.q1$ASML.Ret+1)
+ew.q1$CRM <- cumprod(ew.q1$CRM.Ret+1)
+ew.q1$XOM <- cumprod(ew.q1$XOM.Ret+1)
+ew.q1$NLY <- cumprod(ew.q1$NLY.Ret+1)
+ew.q1$EWPort<-(ew.q1$ASML+ew.q1$CRM+ew.q1$XOM+ew.q1$NLY)/4
+ew.q1$EWRet<-rbind(ew.q1$EWPort[1]-1,Delt(ew.q1$EWPort)[-1,])
+# #Q2
+ew.q2 <- subset(multi_eq, index(multi_eq) > "2007-04-01")
+ew.q2 <- subset(ew.q2, index(ew.q2) < "2007-06-30")
+ew.q2[c(1:4,nrow(ew.q2)),]
+ew.q2$ASML <- cumprod(ew.q2$ASML.Ret+1)
+ew.q2$CRM <- cumprod(ew.q2$CRM.Ret+1)
+ew.q2$XOM <- cumprod(ew.q2$XOM.Ret+1)
+ew.q2$NLY <- cumprod(ew.q2$NLY.Ret+1)
+ew.q2$EWPort<-(ew.q2$ASML+ew.q2$CRM+ew.q2$XOM+ew.q2$NLY)/4
+ew.q2$EWRet<-rbind(ew.q2$EWPort[1]-1,Delt(ew.q2$EWPort)[-1,])
+#Q3
+ew.q3 <- subset(multi_eq, index(multi_eq) > "2007-07-01")
+ew.q3 <- subset(ew.q3, index(ew.q3) < "2007-09-30")
+ew.q3[c(1:4,nrow(ew.q3)),]
+ew.q3$ASML <- cumprod(ew.q3$ASML.Ret+1)
+ew.q3$CRM <- cumprod(ew.q3$CRM.Ret+1)
+ew.q3$XOM <- cumprod(ew.q3$XOM.Ret+1)
+ew.q3$NLY <- cumprod(ew.q3$NLY.Ret+1)
+ew.q3$EWPort<-(ew.q3$ASML+ew.q3$CRM+ew.q3$XOM+ew.q3$NLY)/4
+ew.q3$EWRet<-rbind(ew.q3$EWPort[1]-1,Delt(ew.q3$EWPort)[-1,])
+# #Q4
+ew.q4 <- subset(multi_eq, index(multi_eq) >= "2007-10-01")
+ew.q4 <- subset(ew.q4, index(ew.q4) < "2007-12-31")
+ew.q4[c(1:4,nrow(ew.q4)),]
+ew.q4$ASML <- cumprod(ew.q4$ASML.Ret+1)
+ew.q4$CRM <- cumprod(ew.q4$CRM.Ret+1)
+ew.q4$XOM <- cumprod(ew.q4$XOM.Ret+1)
+ew.q4$NLY <- cumprod(ew.q4$NLY.Ret+1)
+ew.q4$EWPort<-(ew.q4$ASML+ew.q4$CRM+ew.q4$XOM+ew.q4$NLY)/4
+ew.q4$EWRet<-rbind(ew.q4$EWPort[1]-1,Delt(ew.q4$EWPort)[-1,])
+# #Q5
+ew.q5 <- subset(multi_eq, index(multi_eq) > "2008-01-01")
+ew.q5 <- subset(ew.q5, index(ew.q5) < "2008-03-31")
+ew.q5[c(1:4,nrow(ew.q5)),]
+ew.q5$ASML <- cumprod(ew.q5$ASML.Ret+1)
+ew.q5$CRM <- cumprod(ew.q5$CRM.Ret+1)
+ew.q5$XOM <- cumprod(ew.q5$XOM.Ret+1)
+ew.q5$NLY <- cumprod(ew.q5$NLY.Ret+1)
+ew.q5$EWPort<-(ew.q5$ASML+ew.q5$CRM+ew.q5$XOM+ew.q5$NLY)/4
+ew.q5$EWRet<-rbind(ew.q5$EWPort[1]-1,Delt(ew.q5$EWPort)[-1,])
+# #Q6
+ew.q6 <- subset(multi_eq, index(multi_eq) > "2008-04-01")
+ew.q6 <- subset(ew.q6, index(ew.q6) < "2008-06-30")
+ew.q6[c(1:4,nrow(ew.q6)),]
+ew.q6$ASML <- cumprod(ew.q6$ASML.Ret+1)
+ew.q6$CRM <- cumprod(ew.q6$CRM.Ret+1)
+ew.q6$XOM <- cumprod(ew.q6$XOM.Ret+1)
+ew.q6$NLY <- cumprod(ew.q6$NLY.Ret+1)
+ew.q6$EWPort<-(ew.q6$ASML+ew.q6$CRM+ew.q6$XOM+ew.q6$NLY)/4
+ew.q6$EWRet<-rbind(ew.q6$EWPort[1]-1,Delt(ew.q6$EWPort)[-1,])
+# #Q7
+ew.q7 <- subset(multi_eq, index(multi_eq) > "2008-07-01")
+ew.q7 <- subset(ew.q7, index(ew.q7) < "2008-09-30")
+ew.q7[c(1:4,nrow(ew.q7)),]
+ew.q7$ASML <- cumprod(ew.q7$ASML.Ret+1)
+ew.q7$CRM <- cumprod(ew.q7$CRM.Ret+1)
+ew.q7$XOM <- cumprod(ew.q7$XOM.Ret+1)
+ew.q7$NLY <- cumprod(ew.q7$NLY.Ret+1)
+ew.q7$EWPort<-(ew.q7$ASML+ew.q7$CRM+ew.q7$XOM+ew.q7$NLY)/4
+ew.q7$EWRet<-rbind(ew.q7$EWPort[1]-1,Delt(ew.q7$EWPort)[-1,])
+#Q8
+ew.q8 <- subset(multi_eq, index(multi_eq) > "2008-10-01")
+ew.q8 <- subset(ew.q8, index(ew.q8) < "2008-12-31")
+ew.q8[c(1:4,nrow(ew.q8)),]
+ew.q8$ASML <- cumprod(ew.q8$ASML.Ret+1)
+ew.q8$CRM <- cumprod(ew.q8$CRM.Ret+1)
+ew.q8$XOM <- cumprod(ew.q8$XOM.Ret+1)
+ew.q8$NLY <- cumprod(ew.q8$NLY.Ret+1)
+ew.q8$EWPort<-(ew.q8$ASML+ew.q8$CRM+ew.q8$XOM+ew.q8$NLY)/4
+ew.q8$EWRet<-rbind(ew.q8$EWPort[1]-1,Delt(ew.q8$EWPort)[-1,])
+#Q9
+ew.q9 <- subset(multi_eq, index(multi_eq) > "2009-01-01")
+ew.q9 <- subset(ew.q9, index(ew.q9) < "2009-03-31")
+ew.q9[c(1:4,nrow(ew.q9)),]
+ew.q9$ASML <- cumprod(ew.q9$ASML.Ret+1)
+ew.q9$CRM <- cumprod(ew.q9$CRM.Ret+1)
+ew.q9$XOM <- cumprod(ew.q9$XOM.Ret+1)
+ew.q9$NLY <- cumprod(ew.q9$NLY.Ret+1)
+ew.q9$EWPort<-(ew.q9$ASML+ew.q9$CRM+ew.q9$XOM+ew.q9$NLY)/4
+ew.q9$EWRet<-rbind(ew.q9$EWPort[1]-1,Delt(ew.q9$EWPort)[-1,])
+#Q10
+ew.q10 <- subset(multi_eq, index(multi_eq) > "2009-04-01")
+ew.q10 <- subset(ew.q10, index(ew.q10) < "2009-06-30")
+ew.q10[c(1:4,nrow(ew.q10)),]
+ew.q10$ASML <- cumprod(ew.q10$ASML.Ret+1)
+ew.q10$CRM <- cumprod(ew.q10$CRM.Ret+1)
+ew.q10$XOM <- cumprod(ew.q10$XOM.Ret+1)
+ew.q10$NLY <- cumprod(ew.q10$NLY.Ret+1)
+ew.q10$EWPort<-(ew.q10$ASML+ew.q10$CRM+ew.q10$XOM+ew.q10$NLY)/4
+ew.q10$EWRet<-rbind(ew.q10$EWPort[1]-1,Delt(ew.q10$EWPort)[-1,])
+#Q11
+ew.q11 <- subset(multi_eq, index(multi_eq) > "2009-07-01")
+ew.q11 <- subset(ew.q11, index(ew.q11) < "2009-09-30")
+ew.q11[c(1:4,nrow(ew.q11)),]
+ew.q11$ASML <- cumprod(ew.q11$ASML.Ret+1)
+ew.q11$CRM <- cumprod(ew.q11$CRM.Ret+1)
+ew.q11$XOM <- cumprod(ew.q11$XOM.Ret+1)
+ew.q11$NLY <- cumprod(ew.q11$NLY.Ret+1)
+ew.q11$EWPort<-(ew.q11$ASML+ew.q11$CRM+ew.q11$XOM+ew.q11$NLY)/4
+ew.q11$EWRet<-rbind(ew.q11$EWPort[1]-1,Delt(ew.q11$EWPort)[-1,])
+#Q12
+ew.q12 <- subset(multi_eq, index(multi_eq) > "2009-10-01")
+ew.q12 <- subset(ew.q12, index(ew.q12) < "2009-12-31")
+ew.q12[c(1:4,nrow(ew.q12)),]
+ew.q12$ASML <- cumprod(ew.q12$ASML.Ret+1)
+ew.q12$CRM <- cumprod(ew.q12$CRM.Ret+1)
+ew.q12$XOM <- cumprod(ew.q12$XOM.Ret+1)
+ew.q12$NLY <- cumprod(ew.q12$NLY.Ret+1)
+ew.q12$EWPort<-(ew.q12$ASML+ew.q12$CRM+ew.q12$XOM+ew.q12$NLY)/4
+ew.q12$EWRet<-rbind(ew.q12$EWPort[1]-1,Delt(ew.q12$EWPort)[-1,])
+#Q13
+ew.q13 <- subset(multi_eq, index(multi_eq) > "2010-01-01")
+ew.q13 <- subset(ew.q13, index(ew.q13) < "2010-03-31")
+ew.q13[c(1:4,nrow(ew.q13)),]
+ew.q13$ASML <- cumprod(ew.q13$ASML.Ret+1)
+ew.q13$CRM <- cumprod(ew.q13$CRM.Ret+1)
+ew.q13$XOM <- cumprod(ew.q13$XOM.Ret+1)
+ew.q13$NLY <- cumprod(ew.q13$NLY.Ret+1)
+ew.q13$EWPort<-(ew.q13$ASML+ew.q13$CRM+ew.q13$XOM+ew.q13$NLY)/4
+ew.q13$EWRet<-rbind(ew.q13$EWPort[1]-1,Delt(ew.q13$EWPort)[-1,])
+#Q14
+ew.q14 <- subset(multi_eq, index(multi_eq) > "2010-04-01")
+ew.q14 <- subset(ew.q14, index(ew.q14) < "2010-06-30")
+ew.q14[c(1:4,nrow(ew.q14)),]
+ew.q14$ASML <- cumprod(ew.q14$ASML.Ret+1)
+ew.q14$CRM <- cumprod(ew.q14$CRM.Ret+1)
+ew.q14$XOM <- cumprod(ew.q14$XOM.Ret+1)
+ew.q14$NLY <- cumprod(ew.q14$NLY.Ret+1)
+ew.q14$EWPort<-(ew.q14$ASML+ew.q14$CRM+ew.q14$XOM+ew.q14$NLY)/4
+ew.q14$EWRet<-rbind(ew.q14$EWPort[1]-1,Delt(ew.q14$EWPort)[-1,])
+#Q15
+ew.q15 <- subset(multi_eq, index(multi_eq) > "2010-07-01")
+ew.q15 <- subset(ew.q15, index(ew.q15) < "2010-09-30")
+ew.q15[c(1:4,nrow(ew.q15)),]
+ew.q15$ASML <- cumprod(ew.q15$ASML.Ret+1)
+ew.q15$CRM <- cumprod(ew.q15$CRM.Ret+1)
+ew.q15$XOM <- cumprod(ew.q15$XOM.Ret+1)
+ew.q15$NLY <- cumprod(ew.q15$NLY.Ret+1)
+ew.q15$EWPort<-(ew.q15$ASML+ew.q15$CRM+ew.q15$XOM+ew.q15$NLY)/4
+ew.q15$EWRet<-rbind(ew.q15$EWPort[1]-1,Delt(ew.q15$EWPort)[-1,])
+#Q16
+ew.q16 <- subset(multi_eq, index(multi_eq) > "2010-10-01")
+ew.q16 <- subset(ew.q16, index(ew.q16) < "2010-12-31")
+ew.q16[c(1:4,nrow(ew.q16)),]
+ew.q16$ASML <- cumprod(ew.q16$ASML.Ret+1)
+ew.q16$CRM <- cumprod(ew.q16$CRM.Ret+1)
+ew.q16$XOM <- cumprod(ew.q16$XOM.Ret+1)
+ew.q16$NLY <- cumprod(ew.q16$NLY.Ret+1)
+ew.q16$EWPort<-(ew.q16$ASML+ew.q16$CRM+ew.q16$XOM+ew.q16$NLY)/4
+ew.q16$EWRet<-rbind(ew.q16$EWPort[1]-1,Delt(ew.q16$EWPort)[-1,])
+#Q17
+ew.q17 <- subset(multi_eq, index(multi_eq) > "2011-01-01")
+ew.q17 <- subset(ew.q17, index(ew.q17) < "2011-03-31")
+ew.q17[c(1:4,nrow(ew.q17)),]
+ew.q17$ASML <- cumprod(ew.q17$ASML.Ret+1)
+ew.q17$CRM <- cumprod(ew.q17$CRM.Ret+1)
+ew.q17$XOM <- cumprod(ew.q17$XOM.Ret+1)
+ew.q17$NLY <- cumprod(ew.q17$NLY.Ret+1)
+ew.q17$EWPort<-(ew.q17$ASML+ew.q17$CRM+ew.q17$XOM+ew.q17$NLY)/4
+ew.q17$EWRet<-rbind(ew.q17$EWPort[1]-1,Delt(ew.q17$EWPort)[-1,])
+#Q18
+ew.q18 <- subset(multi_eq, index(multi_eq) > "2011-04-01")
+ew.q18 <- subset(ew.q18, index(ew.q18) < "2011-06-30")
+ew.q18[c(1:4,nrow(ew.q18)),]
+ew.q18$ASML <- cumprod(ew.q18$ASML.Ret+1)
+ew.q18$CRM <- cumprod(ew.q18$CRM.Ret+1)
+ew.q18$XOM <- cumprod(ew.q18$XOM.Ret+1)
+ew.q18$NLY <- cumprod(ew.q18$NLY.Ret+1)
+ew.q18$EWPort<-(ew.q18$ASML+ew.q18$CRM+ew.q18$XOM+ew.q18$NLY)/4
+ew.q18$EWRet<-rbind(ew.q18$EWPort[1]-1,Delt(ew.q18$EWPort)[-1,])
+#Q19
+ew.q19 <- subset(multi_eq, index(multi_eq) > "2011-07-01")
+ew.q19 <- subset(ew.q19, index(ew.q16) < "2011-09-30")
+ew.q16[c(1:4,nrow(ew.q16)),]
+ew.q19$ASML <- cumprod(ew.q19$ASML.Ret+1)
+ew.q19$CRM <- cumprod(ew.q19$CRM.Ret+1)
+ew.q19$XOM <- cumprod(ew.q19$XOM.Ret+1)
+ew.q19$NLY <- cumprod(ew.q19$NLY.Ret+1)
+ew.q19$EWPort<-(ew.q19$ASML+ew.q19$CRM+ew.q19$XOM+ew.q19$NLY)/4
+ew.q19$EWRet<-rbind(ew.q19$EWPort[1]-1,Delt(ew.q19$EWPort)[-1,])
+#Q16
+ew.q20 <- subset(multi_eq, index(multi_eq) > "2011-10-01")
+ew.q20 <- subset(ew.q20, index(ew.q20) < "2011-12-31")
+ew.q20[c(1:4,nrow(ew.q20)),]
+ew.q20$ASML <- cumprod(ew.q20$ASML.Ret+1)
+ew.q20$CRM <- cumprod(ew.q20$CRM.Ret+1)
+ew.q20$XOM <- cumprod(ew.q20$XOM.Ret+1)
+ew.q20$NLY <- cumprod(ew.q20$NLY.Ret+1)
+ew.q20$EWPort<-(ew.q20$ASML+ew.q20$CRM+ew.q20$XOM+ew.q20$NLY)/4
+ew.q20$EWRet<-rbind(ew.q20$EWPort[1]-1,Delt(ew.q20$EWPort)[-1,])
+ew.all<- rbind(ew.q1,ew.q2,ew.q3,ew.q4,ew.q5,ew.q6,ew.q7,ew.q8,ew.q9,ew.q10,
+ew.q11,ew.q12, ew.q13,ew.q14,ew.q15,ew.q16,ew.q17,ew.q18,ew.q19,ew.q20)
+
+ew.all$total_sum <- rowSums(ew.all[, -1], na.rm = TRUE)
+plot(ew.all$total_sum)
+```
+
+# Create a value-weighted portfolio (rebalance each quarter) {#section-3-2}
+```{r, echo=FALSE}
+
+port <- data.ASML[,c(4,5)]
+port <- merge(port,data.CRM[,c(4,5)])
+port <- merge(port,data.NLY[,c(4,5)])
+port <- merge(port,data.XOM[,c(4,5)])
+port$ASML.ret <- Delt(port$ASML.Adjusted)
+port$CRM.ret <- Delt(port$CRM.Adjusted)
+port$NLY.ret <- Delt(port$NLY.Adjusted)
+port$XOM.ret <- Delt(port$XOM.Adjusted)
+port <- cbind(data.frame(index(port)),
+              data.frame(port))
+names(port)[1] <- paste("date")
+port[c(1:3,nrow(port)),] 
+vwport <- port[,c(1,2,4,6,8,10:13)]
+vwport[c(1:3,nrow(vwport)),]
+rownames(vwport) <- seq(1:nrow(vwport))
+
+vwport$ASML.ret <- 1+vwport$ASML.ret
+vwport$CRM.ret <- 1+vwport$CRM.ret
+vwport$NLY.ret <- 1+vwport$NLY.ret
+vwport$XOM.ret <- 1+vwport$XOM.ret
+date <- seq(as.Date("2007-01-01"),as.Date("2011-12-31"),by=1)
+date <- data.frame(date)
+
+PRICE.qtr <- vwport[,c(1,2,3,4,5)]
+PRICE.qtr[c(1:3,nrow(PRICE.qtr)),]
+PRICE.qtr <- na.locf(merge(x=date,y=PRICE.qtr,by="date",all.x=TRUE))
+PRICE.qtr <- subset(PRICE.qtr,
+                    PRICE.qtr$date==as.Date("2007-01-05") |
+                    PRICE.qtr$date==as.Date("2007-03-31") |
+                    PRICE.qtr$date==as.Date("2007-06-30") |
+                    PRICE.qtr$date==as.Date("2007-09-30") |
+                    PRICE.qtr$date==as.Date("2008-01-01") |
+                    PRICE.qtr$date==as.Date("2008-03-31") |
+                    PRICE.qtr$date==as.Date("2008-06-30") |
+                    PRICE.qtr$date==as.Date("2008-09-30") |
+                    PRICE.qtr$date==as.Date("2009-01-01") |
+                    PRICE.qtr$date==as.Date("2009-03-31") |
+                    PRICE.qtr$date==as.Date("2009-06-30") |
+                    PRICE.qtr$date==as.Date("2009-09-30") |
+                    PRICE.qtr$date==as.Date("2010-01-01") |
+                    PRICE.qtr$date==as.Date("2010-03-31") |
+                    PRICE.qtr$date==as.Date("2010-06-30") |
+                    PRICE.qtr$date==as.Date("2010-09-30") |
+                    PRICE.qtr$date==as.Date("2011-01-01") |
+                    PRICE.qtr$date==as.Date("2011-03-31") |
+                    PRICE.qtr$date==as.Date("2011-09-30") |
+                    PRICE.qtr$date==as.Date("2011-12-31") )
+
+PRICE.qtr$ASML.shout<- c(322630000,322630000,322630000,322630000, 
+                        333000000,333000000,333000000,333000000,
+                        334000000,334000000,334000000,334000000,
+                        334000000,334000000,334000000,334000000,
+                        332000000,332000000,332000000,332000000)
+PRICE.qtr$CRM.shout <- c(470000000,470000000,470000000,470000000,
+                         467000000,471000000,472000000,473000000,
+                         449000000,472000000,473000000,480000000,
+                         481000000,481100000,481100000,481100000,
+                         481200000,481200000,481300000,481500000)
+PRICE.qtr$NLY.shout <- c(138000000,144000000,140000000,153000000,
+                         156000000,198000000,207000000,237000000,
+                         219000000,253000000,244000000,249000000,
+                         251000000, 249000000,249000000,239000000,
+                         249000000,237000000,237000000, 247000000)
+PRICE.qtr$XOM.shout <- c(48400000,47300000,47200000,50000000,
+                         48900000,49700000,49100000,48400000,
+                         48700000,47100000,46500000, 45900000,
+                         46200000,44800000,44300000,43900000,
+                         44100000, 43200000,42900000,42600000)
+weights <- PRICE.qtr
+weights$ASML.mcap <- weights$ASML.Close*weights$ASML.shout
+weights$CRM.mcap <- weights$CRM.Close*weights$CRM.shout
+weights$NLY.mcap <- weights$NLY.Close*weights$NLY.shout
+weights$XOM.mcap <- weights$XOM.Close*weights$XOM.shout
+
+weights$tot.mcap <- rowSums(weights[10:13])
+weights
+weights$ASML.wgt <- weights$ASML.mcap/weights$tot.mcap
+weights$CRM.wgt <- weights$CRM.mcap/weights$tot.mcap
+weights$NLY.wgt <- weights$NLY.mcap/weights$tot.mcap
+weights$XOM.wgt <- weights$XOM.mcap/weights$tot.mcap
+
+WEIGHT <- weights[,c(1,15:18)]
+WEIGHT
+WEIGHT$date <- WEIGHT$date+1
+WEIGHT
+vwret <- na.locf(merge(date,WEIGHT,by="date",all.x=TRUE))
+#Q1
+q1.vw.wgt <- subset(vwret,vwret$date==as.Date("2007-03-31"))
+Q1.pie.values <- as.numeric(q1.vw.wgt[,-1])
+Q1.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q1.pie.values*100)
+Q1.pie.labels <- paste(Q1.pie.labels,pct) #Add pct
+Q1.pie.labels <- paste(Q1.pie.labels,"%",sep="") #Add % sign
+Q1.pie.values
+pie(Q1.pie.values,
+    labels=Q1.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q1 Value Weigthing")
+#Q2
+q2.vw.wgt <- subset(vwret,vwret$date==as.Date("2007-06-30"))
+Q2.pie.values <- as.numeric(q2.vw.wgt[,-1])
+Q2.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q2.pie.values*100)
+Q2.pie.labels <- paste(Q2.pie.labels,pct) #Add pct
+Q2.pie.labels <- paste(Q2.pie.labels,"%",sep="") #Add % sign
+Q2.pie.values
+pie(Q1.pie.values,
+    labels=Q2.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q2 Value Weigthing")
+#Q3
+q3.vw.wgt <- subset(vwret,vwret$date==as.Date("2007-09-30"))
+Q3.pie.values <- as.numeric(q3.vw.wgt[,-1])
+Q3.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q2.pie.values*100)
+Q3.pie.labels <- paste(Q3.pie.labels,pct) #Add pct
+Q3.pie.labels <- paste(Q3.pie.labels,"%",sep="") #Add % sign
+Q3.pie.values
+pie(Q1.pie.values,
+    labels=Q3.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q3 Value Weigthing")
+#Q4
+q4.vw.wgt <- subset(vwret,vwret$date==as.Date("2008-01-01"))
+Q4.pie.values <- as.numeric(q4.vw.wgt[,-1])
+Q4.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q4.pie.values*100)
+Q4.pie.labels <- paste(Q4.pie.labels,pct) #Add pct
+Q4.pie.labels <- paste(Q4.pie.labels,"%",sep="") #Add % sign
+Q4.pie.values
+pie(Q1.pie.values,
+    labels=Q2.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q4 Value Weigthing")
+#Q5
+q5.vw.wgt <- subset(vwret,vwret$date==as.Date("2008-03-31"))
+Q5.pie.values <- as.numeric(q5.vw.wgt[,-1])
+Q5.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q5.pie.values*100)
+Q5.pie.labels <- paste(Q5.pie.labels,pct) #Add pct
+Q5.pie.labels <- paste(Q5.pie.labels,"%",sep="") #Add % sign
+Q5.pie.values
+pie(Q5.pie.values,
+    labels=Q5.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q5 Value Weigthing")
+#Q6
+q6.vw.wgt <- subset(vwret,vwret$date==as.Date("2008-06-30"))
+Q6.pie.values <- as.numeric(q6.vw.wgt[,-1])
+Q6.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q6.pie.values*100)
+Q6.pie.labels <- paste(Q6.pie.labels,pct) #Add pct
+Q6.pie.labels <- paste(Q6.pie.labels,"%",sep="") #Add % sign
+Q6.pie.values
+pie(Q6.pie.values,
+    labels=Q6.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q6 Value Weigthing")
+#Q7
+q7.vw.wgt <- subset(vwret,vwret$date==as.Date("2008-09-30"))
+Q7.pie.values <- as.numeric(q7.vw.wgt[,-1])
+Q7.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q7.pie.values*100)
+Q7.pie.labels <- paste(Q7.pie.labels,pct) #Add pct
+Q7.pie.labels <- paste(Q7.pie.labels,"%",sep="") #Add % sign
+Q7.pie.values
+pie(Q7.pie.values,
+    labels=Q7.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q7 Value Weigthing")
+#Q8
+q8.vw.wgt <- subset(vwret,vwret$date==as.Date("2008-09-30"))
+Q8.pie.values <- as.numeric(q8.vw.wgt[,-1])
+Q8.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q8.pie.values*100)
+Q8.pie.labels <- paste(Q8.pie.labels,pct) #Add pct
+Q8.pie.labels <- paste(Q8.pie.labels,"%",sep="") #Add % sign
+Q8.pie.values
+pie(Q8.pie.values,
+    labels=Q8.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q8 Value Weigthing")
+#Q9
+q9.vw.wgt <- subset(vwret,vwret$date==as.Date("2009-01-01"))
+Q9.pie.values <- as.numeric(q9.vw.wgt[,-1])
+Q9.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q9.pie.values*100)
+Q9.pie.labels <- paste(Q9.pie.labels,pct) #Add pct
+Q9.pie.labels <- paste(Q9.pie.labels,"%",sep="") #Add % sign
+Q9.pie.values
+pie(Q9.pie.values,
+    labels=Q9.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q9 Value Weigthing")
+
+
+
+
+#Q10
+q10.vw.wgt <- subset(vwret,vwret$date==as.Date("2009-03-30"))
+Q10.pie.values <- as.numeric(q10.vw.wgt[,-1])
+Q10.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q10.pie.values*100)
+Q10.pie.labels <- paste(Q10.pie.labels,pct) #Add pct
+Q10.pie.labels <- paste(Q10.pie.labels,"%",sep="") #Add % sign
+Q10.pie.values
+pie(Q10.pie.values,
+    labels=Q10.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q10 Value Weigthing")
+
+#Q11
+q11.vw.wgt <- subset(vwret,vwret$date==as.Date("2008-06-30"))
+Q11.pie.values <- as.numeric(q11.vw.wgt[,-1])
+Q11.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q11.pie.values*100)
+Q11.pie.labels <- paste(Q11.pie.labels,pct) #Add pct
+Q11.pie.labels <- paste(Q11.pie.labels,"%",sep="") #Add % sign
+Q11.pie.values
+pie(Q11.pie.values,
+    labels=Q11.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q11 Value Weigthing")
+
+#Q12
+q12.vw.wgt <- subset(vwret,vwret$date==as.Date("2009-09-30"))
+Q8.pie.values <- as.numeric(q8.vw.wgt[,-1])
+Q8.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q8.pie.values*100)
+Q8.pie.labels <- paste(Q8.pie.labels,pct) #Add pct
+Q8.pie.labels <- paste(Q8.pie.labels,"%",sep="") #Add % sign
+Q8.pie.values
+pie(Q8.pie.values,
+    labels=Q8.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q8 Value Weigthing")
+
+#Q13
+q13.vw.wgt <- subset(vwret,vwret$date==as.Date("2010-01-01"))
+Q13.pie.values <- as.numeric(q13.vw.wgt[,-1])
+Q13.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q13.pie.values*100)
+Q13.pie.labels <- paste(Q13.pie.labels,pct) #Add pct
+Q13.pie.labels <- paste(Q13.pie.labels,"%",sep="") #Add % sign
+Q13.pie.values
+pie(Q13.pie.values,
+    labels=Q13.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q13 Value Weigthing")
+
+#Q14
+q14.vw.wgt <- subset(vwret,vwret$date==as.Date("2011-03-31"))
+Q14.pie.values <- as.numeric(q14.vw.wgt[,-1])
+Q14.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q14.pie.values*100)
+Q14.pie.labels <- paste(Q14.pie.labels,pct) #Add pct
+Q14.pie.labels <- paste(Q14.pie.labels,"%",sep="") #Add % sign
+Q14.pie.values
+pie(Q14.pie.values,
+    labels=Q14.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q14 Value Weigthing")
+#Q15
+q15.vw.wgt <- subset(vwret,vwret$date==as.Date("2010-06-30"))
+Q15.pie.values <- as.numeric(q15.vw.wgt[,-1])
+Q15.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q15.pie.values*100)
+Q15.pie.labels <- paste(Q15.pie.labels,pct) #Add pct
+Q15.pie.labels <- paste(Q15.pie.labels,"%",sep="") #Add % sign
+Q15.pie.values
+pie(Q15.pie.values,
+    labels=Q15.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q15 Value Weigthing")
+#Q16
+q16.vw.wgt <- subset(vwret,vwret$date==as.Date("2011-09-30"))
+Q16.pie.values <- as.numeric(q16.vw.wgt[,-1])
+Q16.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q16.pie.values*100)
+Q16.pie.labels <- paste(Q16.pie.labels,pct) #Add pct
+Q16.pie.labels <- paste(Q16.pie.labels,"%",sep="") #Add % sign
+Q16.pie.values
+pie(Q16.pie.values,
+    labels=Q16.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q16 Value Weigthing")
+#Q17
+q17.vw.wgt <- subset(vwret,vwret$date==as.Date("2011-01-01"))
+Q17.pie.values <- as.numeric(q17.vw.wgt[,-1])
+Q17.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q17.pie.values*100)
+Q17.pie.labels <- paste(Q17.pie.labels,pct) #Add pct
+Q17.pie.labels <- paste(Q17.pie.labels,"%",sep="") #Add % sign
+Q17.pie.values
+pie(Q17.pie.values,
+    labels=Q17.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q17 Value Weigthing")
+#Q18
+q18.vw.wgt <- subset(vwret,vwret$date==as.Date("2011-03-31"))
+Q18.pie.values <- as.numeric(q18.vw.wgt[,-1])
+Q18.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q18.pie.values*100)
+Q18.pie.labels <- paste(Q18.pie.labels,pct) #Add pct
+Q18.pie.labels <- paste(Q18.pie.labels,"%",sep="") #Add % sign
+Q18.pie.values
+pie(Q18.pie.values,
+    labels=Q18.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q18 Value Weigthing")
+#Q19
+q19.vw.wgt <- subset(vwret,vwret$date==as.Date("2011-09-30"))
+Q19.pie.values <- as.numeric(q19.vw.wgt[,-1])
+Q19.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q19.pie.values*100)
+Q19.pie.labels <- paste(Q19.pie.labels,pct) #Add pct
+Q19.pie.labels <- paste(Q19.pie.labels,"%",sep="") #Add % sign
+Q19.pie.values
+pie(Q19.pie.values,
+    labels=Q19.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q19 Value Weigthing")
+#Q20
+q20.vw.wgt <- subset(vwret,vwret$date==as.Date("2011-12-31"))
+Q20.pie.values <- as.numeric(q20.vw.wgt[,-1])
+Q20.pie.labels <- c("ASML","CRM","NLY", "XOM")
+pct <- round(Q20.pie.values*100)
+Q20.pie.labels <- paste(Q20.pie.labels,pct) #Add pct
+Q20.pie.labels <- paste(Q20.pie.labels,"%",sep="") #Add % sign
+Q20.pie.values
+pie(Q20.pie.values,
+    labels=Q20.pie.labels,
+    col=c("red","blue","green", "yellow"),
+    main="Q20 Value Weigthing")
+```

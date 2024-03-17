@@ -1,0 +1,44 @@
+---
+title: "hw3"
+author: "Chun-Yu Tseng"
+date: "2024-03-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part A – Risks
+- 1. Using all securities from your portfolio (from different sectors) 
+  * [a) Calculate Variance-Covariance (VCOV) Matrix of Returns](#section-1-1)
+  * [b) Identify the Minimum Variance Portfolio](#section-1-2)
+  * [c) Identify Tangency Portfolio](#section-1-3)
+  * [d) Plot the Mean-Variance (MV) Efficient Frontier](#section-1-4)
+
+## Part B – Suitable distributions for returns
+- Use the same investment period and the same stocks
+  * [1. The global-minimum variance portfolio.](#section-2-1)
+  * [2. The most diversified Portfolio](#section-2-2)
+  * [3. The equal-risk contributed Portfolio](#section-2-3)
+  * [4. Minimum tail-dependent portfolio](#section-2-4)
+
+  
+Identify
+
+
+# a) Calculate Variance-Covariance (VCOV) Matrix of Returns {#section-1-1}
+```{r Loading Data and calcuate, echo=FALSE}
+library(quantmod)
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d")  
+data.ASML <- cbind(date, data.ASML[,-1])   # -1 deletes the original Date variable
+data.ASML <- data.ASML[order(data.ASML$date),]
+data.ASML <- xts(data.ASML[,2:7], order.by = data.ASML[,1])
+names(data.ASML) <- paste(c("ASML.Open","ASML.High","ASML.Low","ASML.Close","ASML.Volume","ASML.Adjusted"))
+ASML.monthly <- to.monthly(data.ASML)
+ASML.monthly <- ASML.monthly[,6]
+ASML.ret <- Delt(ASML.monthly$data.ASML.Adjusted)
+names(ASML.ret) <- paste("ASML.Ret")
+ASML.ret[c(1:3,nrow(ASML.ret)),]
+```

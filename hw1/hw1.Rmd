@@ -1,0 +1,365 @@
+---
+title: "hw1"
+author: "Chun-Yu Tseng"
+date: "2024-01-27"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Table of Contents
+- Section 1: Plot the data for each security to check for missing data
+  * Information Technology  
+    * [ASML](#section-1-1)
+    * [CRM](#section-1-2)
+  * Engery  
+    * [XOM](#section-1-3)
+    * [ET](#section-1-4)
+  * Real Estate   
+    * [NLY](#section-1-5)
+    * [PLD](#section-1-6)
+- Section 2: Plot candlestick charts for one stock from each sector
+   * [ASML in Information Technology](#section-2-1)
+   * [NLY in Real Estate](#section-2-2)
+   * [XOM in Engery](#section-2-3)
+- Section 3: Develop a plot comparing the capital gains by sector
+   * [capital gains Plot](#section-3)
+- Section 4: Rolling 50-Day and 200-Day Average Price
+   * [Avg Plot](#section-4)
+- Section 5: Bollinger Bands Plot
+   * [Bollinger Bands Plot](#section-5)
+   
+# ASML {#section-1-1}
+```{r ASML}
+library(quantmod)
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+head(data.ASML) 
+class(data.ASML$Date) 
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d")  
+head(date)
+data.ASML <- cbind(date, data.ASML[,-1])   # -1 deletes the original Date variable
+data.ASML <- data.ASML[order(data.ASML$date),]
+names(data.ASML)
+names(data.ASML) <- paste(c("ASML.Date","ASML.Open","ASML.High","ASML.Low","ASML.Close","ASML.Adjusted","ASML.Volume"))
+head(data.ASML)
+```
+## Checking Data
+```{r Checking ASML Data}
+plot(data.ASML$ASML.Date,data.ASML$ASML.Close, type = "l")
+dim(data.ASML) 
+summary(data.ASML)
+```
+## CRM {#section-1-2}
+
+```{r CRM}
+library(quantmod)
+data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
+head(data.CRM) 
+class(data.CRM$Date) 
+date <- as.Date(data.CRM$Date,format="%Y-%m-%d")  
+head(date)
+data.CRM <- cbind(date, data.CRM[,-1])   # -1 deletes the original Date variable
+data.CRM <- data.CRM[order(data.CRM$date),]
+names(data.CRM)
+names(data.CRM) <- paste(c("CRM.Date","CRM.Open","CRM.High","CRM.Low","CRM.Close","CRM.Adjusted","CRM.Volume"))
+head(data.CRM)
+```
+## Checking Data
+```{r Checking CRM Data}
+plot(data.CRM$CRM.Date,data.CRM$CRM.Close, type = "l")
+dim(data.CRM) 
+summary(data.CRM)
+```
+## NLY {#section-1-5}
+```{r}
+data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
+head(data.NLY) 
+class(data.NLY$Date) 
+date <- as.Date(data.NLY$Date,format="%Y-%m-%d")  
+head(date)
+data.NLY <- cbind(date, data.NLY[,-1])   # -1 deletes the original Date variable
+data.NLY <- data.NLY[order(data.NLY$date),]
+names(data.NLY)
+names(data.NLY) <- paste(c("NLY.Date","NLY.Open","NLY.High","NLY.Low","NLY.Close","NLY.Adjusted","NLY.Volume"))
+head(data.NLY)
+```
+## Checking Data
+```{r Checking NLY Data}
+plot(data.NLY$NLY.Date,data.NLY$NLY.Close, type = "l")
+dim(data.NLY) 
+summary(data.NLY)
+```
+
+## PLD {#section-1-6}
+```{r PLD}
+library(quantmod)
+data.PLD <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/PLD.csv",header=TRUE)
+head(data.PLD) 
+class(data.PLD$Date) 
+date <- as.Date(data.PLD$Date,format="%Y-%m-%d")  
+head(date)
+data.PLD <- cbind(date, data.PLD[,-1])   # -1 deletes the original Date variable
+data.PLD <- data.PLD[order(data.PLD$date),]
+names(data.PLD)
+names(data.PLD) <- paste(c("PLD.Date","PLD.Open","PLD.High","PLD.Low","PLD.Close","PLD.Adjusted","PLD.Volume"))
+head(data.PLD)
+```
+## Checking Data
+```{r Checking PLD Data}
+plot(data.PLD$PLD.Date,data.PLD$PLD.Close, type = "l")
+dim(data.PLD) 
+summary(data.PLD)
+```
+
+
+## XOM {#section-1-3}
+```{r XOM}
+library(quantmod)
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+head(data.XOM) 
+class(data.XOM$Date) 
+date <- as.Date(data.XOM$Date,format="%Y-%m-%d")  
+head(date)
+data.XOM <- cbind(date, data.XOM[,-1])   # -1 deletes the original Date variable
+data.XOM <- data.XOM[order(data.XOM$date),]
+names(data.XOM)
+names(data.XOM) <- paste(c("XOM.Date","XOM.Open","XOM.High","XOM.Low","XOM.Close","XOM.Adjusted","XOM.Volume"))
+head(data.XOM)
+```
+## Checking Data
+```{r Checking XOM Data}
+plot(data.XOM$XOM.Date,data.XOM$XOM.Close, type = "l")
+dim(data.XOM) 
+summary(data.XOM)
+```
+## ET {#section-1-4}
+```{r ET}
+library(quantmod)
+data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+head(data.ET) 
+class(data.ET$Date) 
+date <- as.Date(data.ET$Date,format="%Y-%m-%d")  
+head(date)
+data.ET <- cbind(date, data.ET[,-1])   # -1 deletes the original Date variable
+data.ET <- data.ET[order(data.ET$date),]
+names(data.ET)
+names(data.ET) <- paste(c("ET.Date","ET.Open","ET.High","ET.Low","ET.Close","ET.Adjusted","ET.Volume"))
+head(data.ET)
+```
+## Checking Data
+```{r Checking ET Data}
+plot(data.ET$ET.Date,data.ET$ET.Close, type = "l")
+dim(data.ET) 
+summary(data.ET)
+```
+## Candle stick from ASML in the Information Technology sector {#section-2-1}
+``` {r}
+wk <- data.ASML
+data.weekly <- to.weekly(wk)
+data.weekly[c(1:3,nrow(data.weekly)),]
+OHLC <- data.weekly[-1,-6]
+ASML.ohlc <- as.quantmod.OHLC(OHLC,col.names=c("Open","High","Low","Close","Volume"))
+ASML.ohlc[c(1:3,nrow(ASML.ohlc)),]
+chartSeries(ASML.ohlc,name="ASML OHLC")
+```
+
+## Candle stick from NLY in the Real Estate sector {#section-2-2}
+``` {r}
+wk <- data.NLY
+data.weekly <- to.weekly(wk)
+data.weekly[c(1:3,nrow(data.weekly)),]
+OHLC <- data.weekly[-1,-6]
+NLY.ohlc <- as.quantmod.OHLC(OHLC,col.names=c("Open","High","Low","Close","Volume"))
+NLY.ohlc[c(1:3,nrow(NLY.ohlc)),]
+chartSeries(NLY.ohlc,name="NLY OHLC")
+```
+
+# Candle stick from XOM in the Engery sector{#section-2-3}
+``` {r}
+wk <- data.XOM
+data.weekly <- to.weekly(wk)
+data.weekly[c(1:3,nrow(data.weekly)),]
+OHLC <- data.weekly[-1,-6]
+XOM.ohlc <- as.quantmod.OHLC(OHLC,col.names=c("Open","High","Low","Close","Volume"))
+XOM.ohlc[c(1:3,nrow(XOM.ohlc)),]
+chartSeries( XOM.ohlc,name="XOM OHLC")
+```
+
+## Develop a plot comparing the capital gains by sector{#section-3}
+```{r Captial gain in each sector}
+#ASML
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
+data.PLD <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/PLD.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+
+
+#only 2009 
+data.ASML <- data.ASML[-c(1:505, 757:nrow(data.ASML)), ]
+data.CRM <- data.CRM[-c(1:505, 757:nrow(data.CRM)), ]
+data.NLY <- data.NLY[-c(1:505, 757:nrow(data.NLY)), ]
+data.PLD <- data.PLD[-c(1:505, 757:nrow(data.PLD)), ]
+data.XOM <- data.XOM[-c(1:505, 757:nrow(data.XOM)), ]
+data.ET <- data.ET[-c(1:505, 757:nrow(data.ET)), ]
+
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d")  
+#date <- as.Date(data.CRM$Date,format="%Y-%m-%d")  
+
+data.ASML <- cbind(date, data.ASML[,-1])
+data.CRM <- cbind(date, data.CRM[,-1])
+data.NLY <- cbind(date, data.NLY[,-1])
+data.PLD <- cbind(date, data.PLD[,-1])
+data.XOM <- cbind(date, data.XOM[,-1])
+data.ET <- cbind(date, data.ET[,-1])
+
+
+data.ASML <- data.ASML[order(data.ASML$date),]
+data.CRM <- data.CRM[order(data.CRM$date),]
+data.NLY <- data.NLY[order(data.NLY$date),]
+data.PLD <- data.PLD[order(data.PLD$date),]
+data.XOM <- data.XOM[order(data.XOM$date),]
+data.ET <- data.ET[order(data.ET$date),]
+
+
+data.ASML <- xts(data.ASML[,2:7],order.by=data.ASML[,1])
+data.CRM <- xts(data.CRM[,2:7],order.by=data.CRM[,1])
+data.NLY <- xts(data.NLY[,2:7],order.by=data.NLY[,1])
+data.PLD <- xts(data.PLD[,2:7],order.by=data.PLD[,1])
+data.XOM <- xts(data.XOM[,2:7],order.by=data.XOM[,1])
+data.ET <- xts(data.ET[,2:7],order.by=data.ET[,1])
+
+
+names(data.ASML) <- paste(c("ASML.Open","ASML.High","ASML.Low","ASML.Close","ASML.Adjusted","ASML.Volume"))
+names(data.CRM) <- paste(c("CRM.Open","CRM.High","CRM.Low","CRM.Close","CRM.Adjusted","CRM.Volume"))
+names(data.NLY) <- paste(c("NLY.Open","NLY.High","NLY.Low","NLY.Close","NLY.Adjusted","NLY.Volume"))
+names(data.PLD) <- paste(c("PLD.Open","PLD.High","PLD.Low","PLD.Close","PLD.Adjusted","PLD.Volume"))
+names(data.XOM) <- paste(c("XOM.Open","XOM.High","XOM.Low","XOM.Close","XOM.Adjusted","XOM.Volume"))
+names(data.ET) <- paste(c("ET.Open","ET.High","ET.Low","ET.Close","ET.Adjusted","ET.Volume"))
+
+
+Close.Prices <- cbind(data.ASML$ASML.Close, data.CRM$CRM.Close,
+                      data.NLY$NLY.Close, data.PLD$PLD.Close,
+                      data.XOM$XOM.Close, data.ET$ET.Close)
+
+Close.Prices[c(1:3,nrow(Close.Prices)),]
+
+multi.df <- cbind(index(Close.Prices),data.frame(Close.Prices))
+
+names(multi.df) <- paste(c("date","ASML","CRM", "NLY", "PLD", "XOM", "ET"))
+
+rownames(multi.df) <- seq(1,nrow(multi.df),1)
+
+multi.df[c(1:3,nrow(multi.df)),]
+
+#Sector calculate
+multi.df$InformationTechnology.idx <- (multi.df$CRM/multi.df$CRM[1] + multi.df$ASML/multi.df$ASML[1])/2
+multi.df$RealEstate.idx <- (multi.df$NLY/multi.df$NLY[1] + multi.df$PLD/multi.df$PLD[1])/2
+multi.df$Energy.idx <- (multi.df$XOM/multi.df$XOM[1] + multi.df$ET/multi.df$ET[1])/2
+
+multi.df[c(1:3,nrow(multi.df)),]    
+#plot
+plot(x=multi.df$date,
+     y=multi.df$InformationTechnology.idx,
+     type="l",
+     xlab="Date",
+     ylab="Value of Investment ($)",
+     col="#435792",
+     lty=1,
+     lwd=2,
+     main="Value of $1 Investment")+
+lines(x=multi.df$date,
+      y=multi.df$RealEstate.idx,
+      type="l",
+      col="#393f4f",
+      lwd=1)+
+lines(x=multi.df$date,
+      y=multi.df$Energy.idx,
+      type="l",
+      col="#bdaa8a",
+      lwd=1)+
+abline(h=1,lty=1,col="black")
+legend("topleft",
+       c("Information Technology", "Real Estate", "Energy"),
+       col = c("#435792", "#393f4f", "#bdaa8a"),
+       lty = c(1, 1, 1),
+       lwd = c(2, 1, 1))
+```
+
+## Plot the SMA in 50 days and 200 days{#section-4}
+### Picking Engery sector to analyze
+```{r SMA}
+library(ggplot2)
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+
+
+colnames(data.XOM)[1] <- "Date"
+Energy.sma <- data.frame(data.XOM[, 1])
+#Calculate the total of the Enegery
+Energy.sma[, 2:7] <- data.XOM[, 2:7] + data.ET[, 2:7]
+colnames(Energy.sma)[1] <- "Date"
+Energy.sma[c(1:3,nrow(Energy.sma)),]
+
+Energy.sma$sma50 <- zoo::rollmeanr(Energy.sma$Close, k = 50, fill = NA)
+Energy.sma$sma200 <- zoo::rollmeanr(Energy.sma$Close, k = 200, fill = NA)
+Energy.sma[c(1:3,nrow(Energy.sma)),] 
+Energy.sma$Date <- as.Date(Energy.sma$Date)
+
+
+Energy.sma <- subset(Energy.sma, Date > as.Date('2007-01-01'))
+y.range <- range(Energy.sma[, 1], na.rm = TRUE)
+
+plot(Energy.sma$Date, 
+     Energy.sma$Close, type = "l", col = "black", lty = 1, ylim = range(Energy.sma$Close, na.rm = TRUE),
+     xlab = "Date", ylab = "Close Price", main = "Close Price Over Time")
+     lines(Energy.sma$Date, Energy.sma$sma50, col = "red", lty = 1)
+     lines(Energy.sma$Date, Energy.sma$sma200, col = "blue", lty = 2)
+     legend("topright", legend = c("Close", "sma50", "sma200"), col = c("black", "red", "blue"), lty = c(1, 1, 2))
+```
+
+## Bollinger Bands Plot in my profolio{#section-5}
+```{r Bollinger Bands}
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/CRM.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/NLY.csv",header=TRUE)
+data.PLD <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/PLD.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ET.csv",header=TRUE)
+
+colnames(data.XOM)[1] <- "Date"
+Total.bb <- data.frame(data.XOM[, 1])
+#Calculate the total of the Enegery and invest one dollar in each stock
+Total.bb$Close <- data.XOM[, 5] + data.ET[, 5] + data.ASML[, 5] + data.CRM[, 5] + data.PLD[, 5] + data.NLY[, 5] 
+colnames(Total.bb)[1] <- "Date"
+Total.bb[c(1:3,nrow(Total.bb)),]
+
+# Calculate Rolling 20-Day Mean and Std.Dev
+Total.bb$avg <- zoo::rollmeanr(Total.bb$Close,k=20,fill = NA)
+#Total.bb$sd <- zoo :: rollapply(Total.bb$Close,width = 20,FUN = sd,fill = NA)
+Total.bb$sd <- rollapply(Total.bb$Close,width = 20,FUN = sd,fill = NA)
+
+Total.bb[c(1:3,nrow(Total.bb)),]
+
+Total.Five <- subset(Total.bb, Date > as.Date('2007-01-01'))
+Total.Five[c(1:3,nrow(Total.Five)),]
+
+Total.Five$sd2up <- Total.Five$avg+2*Total.Five$sd
+Total.Five$sd2down <- Total.Five$avg-2*Total.Five$sd
+Total.Five[c(1:3,nrow(Total.Five)),]
+Total.Five$Date <- as.Date(Total.Five$Date)
+
+plot(Total.Five$Date,
+     Total.Five$Close,
+     type = "l", col = "black", lty = 1, ylim = range(Total.Five$Close, na.rm = TRUE),
+     xlab = "Date", ylab = "Close Price", main = "Bollinger Bands in my profolio",)
+     lines(Energy.sma$Date,y=Total.Five$avg,lty = 1, col="blue")
+     lines(Energy.sma$Date,y=Total.Five$sd2up,col="green")
+     lines(Energy.sma$Date,y=Total.Five$sd2down,col="red")
+     legend("bottomright", legend = c("Price","20-Day Moving Average","Upper Band","Lower Band"),
+     col = c("black","blue", "green", "red"), lty = c(1, 1, 1,1))
+```

@@ -1,0 +1,260 @@
+---
+title: "hw3"
+author: "Chun-Yu Tseng"
+date: "2024-03-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part A – Risks
+- 1. Using two securities from your portfolio (from different sectors) 
+  * [a) Construct a variance-covariance matrix](#section-1-1)
+  
+## Part B – Suitable distributions for returns
+- Use the same investment period and the same stocks
+  * [Fit the data using GHD, HYP and NIG](#section-2-1)
+  * [Plot the combined density functions](#section-2-2)
+  * [Create a Q-Q plot](#section-2-3)
+  * [Make a model recommendation using lik.ratio.test](#section-2-4)
+  * [Calculate and plot the VaR (using all models)](#section-2-5)
+  * [Calculate and plot the ES (using all models)](#section-2-6)
+
+# Construct a variance-covariance matrix {#section-1-1}
+The data I choose is ASML, XOM, and Calaucte the return in holding each stock for 5 years.
+```{r Loading Data and calcuate, echo=FALSE}
+library(xts)
+library(quantmod)
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+#ASML Data
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d") 
+data.ASML <- cbind(date, data.ASML[,-1])
+data.ASML <- data.ASML[order(data.ASML$date),]
+data.ASML <- xts(data.ASML[,2:7],order.by=data.ASML[,1])
+names(data.ASML) <- paste(c("ASML.Open","ASML.High","ASML.Low","ASML.Close","ASML.Adjusted","ASML.Volume"))
+#XOM Data
+data.XOM <- cbind(date, data.XOM[,-1])  
+data.XOM <- data.XOM[order(data.XOM$date),]
+data.XOM <- xts(data.XOM[,2:7],order.by=data.XOM[,1])
+names(data.XOM) <- paste(c("XOM.Open","XOM.High","XOM.Low","XOM.Close","XOM.Adjusted","XOM.Volume"))
+#
+ASML.ret <- Delt(data.ASML$ASML.Adjusted)
+XOM.ret <- Delt(data.XOM$XOM.Adjusted)
+#Combine two securties
+returns <- cbind(ASML.ret,XOM.ret)
+names(returns) <- paste(c("ASML.Ret","XOM.Ret"))
+returns <- returns[-1,]
+returns[c(1:3,nrow(return)),]
+#Create weights of two vcetor 50% 50%
+WGT.2asset <- c(0.5,0.5)
+WGT.2asset <- matrix(WGT.2asset,1)
+tWGT.2asset <- t(WGT.2asset)
+mat.Ret <- as.matrix(returns)
+head(mat.Ret)
+options(scipen = "100")
+cov(mat.Ret)
+print ("This is the variance-covariance matrix for ASML and XOM")
+VCOV.2asset <- cov(mat.Ret)*252
+VCOV.2asset
+```
+
+# Fit the data using GHD, HYP and NIG {#section-2-1}
+```{r echo=FALSE}
+library(ghyp)
+library(timeSeries)
+library(fBasics)
+library(FRAPO)
+data.ASML <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/ASML.csv",header=TRUE)
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d") 
+ASMLPrice<-data.ASML$Close
+str(date)
+str(ASMLPrice)
+ASMLRet<-returnseries(ASMLPrice)
+attr(ASMLRet, 'time')<-date
+datets<-as.character(date)
+ASMLTimeS<-timeSeries(ASMLRet, charvec = datets)
+ef<-density(ASMLTimeS, na.rm=TRUE)
+plot( main = "ASML", ef)
+
+data.XOM <- read.csv("/Users/ALEX/Documents/workspace_R/515/dataset/XOM.csv",header=TRUE)
+date <- as.Date(data.XOM$Date,format="%Y-%m-%d") 
+XOMPrice<-data.XOM$Close
+str(date)
+str(XOMPrice)
+XOMRet<-returnseries(XOMPrice)
+attr(XOMRet, 'time')<-date
+datets<-as.character(date)
+XOMTimeS<-timeSeries(XOMRet, charvec = datets)
+ef_xom<-density(XOMTimeS, na.rm=TRUE)
+plot( main = "XOM", ef_xom)
+```
+
+# Plot the combined density functions {#section-2-2}
+```{r echo=FALSE}
+#Fit the Generalized Hyperbolic Distribution
+ghdfit<- fit.ghypuv(ASMLTimeS, symmetric = FALSE,silent = TRUE, control = list(maxit = 1000), na.rm = TRUE)
+
+#Fit the Hyperbolic Distribution
+
+hypfit<- fit.hypuv(ASMLTimeS, symmetric = FALSE,silent = TRUE, control = list(maxit = 1000), na.rm = TRUE)
+
+#Fit the Normal Inverse Gaussian Distribution
+
+nigfit<- fit.NIGuv(ASMLTimeS, symmetric = FALSE, silent = TRUE,control = list(maxit = 1000), na.rm = TRUE)
+
+ghddens <- dghyp(ef$x, ghdfit)
+hypdens <- dghyp(ef$x, hypfit)
+nigdens <- dghyp(ef$x, nigfit)
+nordens <- dnorm(ef$x, mean = mean(ASMLTimeS, na.rm=TRUE), sd = sd(c(ASMLTimeS[, 1]), na.rm=TRUE))
+col.def <- c("black", "red", "blue", "green", "orange")
+plot(main ="ASML", ef, xlab = "", ylab = expression(f(x)), ylim = c(0, 0.25))
+lines(ef$x, ghddens, col = "red")
+lines(ef$x, hypdens, col = "blue")
+lines(ef$x, nigdens, col = "green")
+lines(ef$x, nordens, col = "orange")
+
+legend("topleft",
+       legend = c("empirical", "GHD", "HYP", "NIG", "NORM"),
+       col = col.def, lty = 1)
+
+# XOM
+ghdfit_xom<- fit.ghypuv(XOMTimeS, symmetric = FALSE, silent = TRUE, control = list(maxit = 1000), na.rm = TRUE)
+hypfit_xom<- fit.hypuv(XOMTimeS, symmetric = FALSE,silent = TRUE, control = list(maxit = 1000), na.rm = TRUE)
+nigfit_xom<- fit.NIGuv(XOMTimeS, symmetric = FALSE, silent = TRUE,control = list(maxit = 1000), na.rm = TRUE)
+
+ghddens <- dghyp(ef_xom$x, ghdfit_xom)
+hypdens <- dghyp(ef_xom$x, hypfit_xom)
+nigdens <- dghyp(ef_xom$x, nigfit_xom)
+nordens <- dnorm(ef_xom$x, mean = mean(XOMTimeS, na.rm=TRUE), sd = sd(c(XOMTimeS[, 1]), na.rm=TRUE))
+col.def <- c("black", "red", "blue", "green", "orange")
+plot(main ="XOM", ef, xlab = "", ylab = expression(f(x)), ylim = c(0, 0.25))
+lines(ef_xom$x, ghddens, col = "red")
+lines(ef_xom$x, hypdens, col = "blue")
+lines(ef_xom$x, nigdens, col = "green")
+lines(ef_xom$x, nordens, col = "orange")
+
+legend("topleft",
+       legend = c("empirical", "GHD", "HYP", "NIG", "NORM"),
+       col = col.def, lty = 1)
+```
+
+# Create a Q-Q plot {#section-2-3}
+```{r echo=FALSE}
+qqghyp(ghdfit, line = TRUE, ghyp.col = "red", plot.legend = FALSE,
+       gaussian = FALSE, main = "", cex = 0.8)
+qqghyp(hypfit, add = TRUE, ghyp.pch = 2, ghyp.col = "blue",
+       gaussian = FALSE, line = FALSE, cex = 0.8)
+qqghyp(nigfit, add = TRUE, ghyp.pch = 3, ghyp.col = "green",
+       gaussian = FALSE, line = FALSE, cex = 0.8)
+legend("topleft", legend = c("GHD", "HYP", "NIG"),
+       col = col.def[-c(1,5)], pch = 1:3)
+#XOm
+qqghyp(ghdfit_xom, line = TRUE, ghyp.col = "red", plot.legend = FALSE,
+       gaussian = FALSE, main = "", cex = 0.8)
+qqghyp(hypfit_xom, add = TRUE, ghyp.pch = 2, ghyp.col = "blue",
+       gaussian = FALSE, line = FALSE, cex = 0.8)
+qqghyp(nigfit_xom, add = TRUE, ghyp.pch = 3, ghyp.col = "green",
+       gaussian = FALSE, line = FALSE, cex = 0.8)
+legend("topleft", legend = c("GHD", "HYP", "NIG"),
+       col = col.def[-c(1,5)], pch = 1:3)
+```
+
+# Make a model recommendation using lik.ratio.test {#section-2-4}
+```{r echo=FALSE}
+LRghdnig <- lik.ratio.test(ghdfit, nigfit)
+LRghdnig
+LRghdnig_2 <- lik.ratio.test(ghdfit_xom, nigfit_xom)
+LRghdnig_2
+```
+# Calculate and plot the VaR (using all models) {#section-2-5}
+```{r echo=FALSE}
+p <- seq(0.001, 0.05, 0.001)
+ghd.VaR <- abs(qghyp(p, ghdfit))
+hyp.VaR <- abs(qghyp(p, hypfit))
+nig.VaR <- abs(qghyp(p, nigfit))
+nor.VaR <- abs(qnorm(p, mean = mean(ASMLTimeS, na.rm=TRUE), sd = sd(c(ASMLTimeS[, 1]), na.rm = TRUE)))
+emp.VaR <- abs(quantile(x = ASMLTimeS, probs = p, na.rm=TRUE)) 
+plot(main = "ASML",emp.VaR, type = "l", xlab = "", ylab = "VaR", axes = FALSE,
+     ylim = range(c(hyp.VaR, nig.VaR, ghd.VaR, nor.VaR, emp.VaR)))
+box()
+axis(1, at = seq(along = p), labels = names(emp.VaR), tick = FALSE)
+axis(2, at = pretty(range(emp.VaR, ghd.VaR, hyp.VaR,
+                          nig.VaR, nor.VaR)))
+lines(seq(along = p), ghd.VaR, col = "red")
+lines(seq(along = p), hyp.VaR, col = "blue")
+lines(seq(along = p), nig.VaR, col = "green")
+lines(seq(along = p), nor.VaR, col = "orange")
+legend("topright",
+       legend = c("Empirical", "GHD", "HYP", "NIG", "Normal"),
+       col = col.def, lty = 1)
+
+#xom
+ghd.VaR <- abs(qghyp(p, ghdfit_xom))
+hyp.VaR <- abs(qghyp(p, hypfit_xom))
+nig.VaR <- abs(qghyp(p, nigfit_xom))
+nor.VaR <- abs(qnorm(p, mean = mean(XOMTimeS, na.rm=TRUE), sd = sd(c(XOMTimeS[, 1]), na.rm = TRUE)))
+emp.VaR <- abs(quantile(x = XOMTimeS, probs = p, na.rm=TRUE)) 
+plot(main = "XOM",emp.VaR, type = "l", xlab = "", ylab = "VaR", axes = FALSE,
+     ylim = range(c(hyp.VaR, nig.VaR, ghd.VaR, nor.VaR, emp.VaR)))
+box()
+axis(1, at = seq(along = p), labels = names(emp.VaR), tick = FALSE)
+axis(2, at = pretty(range(emp.VaR, ghd.VaR, hyp.VaR,
+                          nig.VaR, nor.VaR)))
+lines(seq(along = p), ghd.VaR, col = "red")
+lines(seq(along = p), hyp.VaR, col = "blue")
+lines(seq(along = p), nig.VaR, col = "green")
+lines(seq(along = p), nor.VaR, col = "orange")
+legend("topright",
+       legend = c("Empirical", "GHD", "HYP", "NIG", "Normal"),
+       col = col.def, lty = 1)
+```
+
+# Calculate and plot the ES (using all models) (using all models) {#section-2-6}
+```{r echo=FALSE}
+ghd.ES <- abs(ESghyp(p, ghdfit))
+hyp.ES <- abs(ESghyp(p, hypfit))
+nig.ES <- abs(ESghyp(p, nigfit))
+nor.ES <- abs(mean(ASMLTimeS, na.rm=TRUE) - sd(c(ASMLTimeS[, 1]), na.rm = TRUE) *
+                dnorm(qnorm(1 - p)) / p)
+obs.p <- ceiling(p * length(ASMLTimeS))
+emp.ES <- sapply(obs.p, function(x) abs(mean(sort(c(ASMLTimeS))[1:x])))
+plot(emp.ES, type = "l", xlab = "", ylab = "ES", axes = FALSE,
+     ylim = range(c(hyp.ES, nig.ES, ghd.ES, nor.ES, emp.ES), na.rm = TRUE))
+box()
+axis(1, at = 1:length(p), labels = names(emp.VaR), tick = FALSE)
+axis(2, at = pretty(range(emp.ES, ghd.ES, hyp.ES, nig.ES, nor.ES)))
+lines(1:length(p), ghd.ES, col = "red")
+lines(1:length(p), hyp.ES, col = "blue")
+lines(1:length(p), nig.ES, col = "green")
+lines(1:length(p), nor.ES, col = "orange")
+legend("topright",
+       legend = c("Empirical", "GHD", "HYP", "NIG", "Normal"),
+       col = col.def, lty = 1)
+title(main = "ASML")
+
+
+#Xom
+ghd.ES <- abs(ESghyp(p, ghdfit_xom))
+hyp.ES <- abs(ESghyp(p, hypfit_xom))
+nig.ES <- abs(ESghyp(p, nigfit_xom))
+nor.ES <- abs(mean(XOMTimeS, na.rm=TRUE) - sd(c(XOMTimeS[, 1]), na.rm = TRUE) *
+                dnorm(qnorm(1 - p)) / p)
+obs.p <- ceiling(p * length(XOMTimeS))
+emp.ES <- sapply(obs.p, function(x) abs(mean(sort(c(XOMTimeS))[1:x])))
+plot(emp.ES, type = "l", xlab = "", ylab = "ES", axes = FALSE,
+     ylim = range(c(hyp.ES, nig.ES, ghd.ES, nor.ES, emp.ES), na.rm = TRUE))
+box()
+axis(1, at = 1:length(p), labels = names(emp.VaR), tick = FALSE)
+axis(2, at = pretty(range(emp.ES, ghd.ES, hyp.ES, nig.ES, nor.ES)))
+lines(1:length(p), ghd.ES, col = "red")
+lines(1:length(p), hyp.ES, col = "blue")
+lines(1:length(p), nig.ES, col = "green")
+lines(1:length(p), nor.ES, col = "orange")
+legend("topright",
+       legend = c("Empirical", "GHD", "HYP", "NIG", "Normal"),
+       col = col.def, lty = 1)
+title(main = "XOM")
+```
