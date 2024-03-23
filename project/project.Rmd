@@ -1,0 +1,416 @@
+---
+title: "515project"
+author: "Chun-Yu Tseng"
+date: "2024-03-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading data
+```{r cars}
+library(xts)
+library(quantmod)
+data.ASML <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ASML.csv",header=TRUE)
+data.CRM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/CRM.csv",header=TRUE)
+data.NLY <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/NLY.csv",header=TRUE)
+data.XOM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/XOM.csv",header=TRUE)
+data.UNH <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/UNH.csv",header=TRUE)
+data.JPM <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/JPM.csv",header=TRUE)
+data.WFC <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/XOM.csv",header=TRUE)
+data.CVS <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/CVS.csv",header=TRUE)
+data.ET <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/ET.csv",header=TRUE)
+data.PLD <- read.csv("/Users/ALEX/Documents/515Project/dataset/2011To2024/PLD.csv",header=TRUE)
+
+#ASML Data
+date <- as.Date(data.ASML$Date,format="%Y-%m-%d") 
+data.ASML <- cbind(date, data.ASML[,-1])
+data.ASML <- data.ASML[order(data.ASML$date),]
+data.ASML <- xts(data.ASML[,2:7],order.by=data.ASML[,1])
+names(data.ASML) <- paste(c("ASML.Open","ASML.High","ASML.Low","ASML.Close","ASML.Adjusted","ASML.Volume"))
+#CRM Data
+data.CRM <- cbind(date, data.CRM[,-1])  
+data.CRM <- data.CRM[order(data.CRM$date),]
+data.CRM <- xts(data.CRM[,2:7],order.by=data.CRM[,1])
+names(data.CRM) <- paste(c("CRM.Open","CRM.High","CRML.Low","CRM.Close","CRM.Adjusted","CRM.Volume"))
+#NLY Data
+data.NLY <- cbind(date, data.NLY[,-1])  
+data.NLY <- data.NLY[order(data.NLY$date),]
+data.NLY <- xts(data.NLY[,2:7],order.by=data.NLY [,1])
+names(data.NLY) <- paste(c("NLY.Open","NLY.High","NLY.Low","NLY.Close","NLY.Adjusted","NLY.Volume"))
+
+#PLD Data
+data.PLD <- cbind(date, data.PLD[,-1])  
+data.PLD <- data.PLD[order(data.PLD$date),]
+data.PLD <- xts(data.PLD[,2:7],order.by=data.PLD [,1])
+names(data.PLD) <- paste(c("PLD.Open","PLD.High","PLD.Low","PLD.Close","PLD.Adjusted","PLD.Volume"))
+#XOM Data
+data.XOM <- cbind(date, data.XOM[,-1])  
+data.XOM <- data.XOM[order(data.XOM$date),]
+data.XOM <- xts(data.XOM[,2:7],order.by=data.XOM[,1])
+names(data.XOM) <- paste(c("XOM.Open","XOM.High","XOM.Low","XOM.Close","XOM.Adjusted","XOM.Volume"))
+#UNH Data
+data.UNH <- cbind(date, data.UNH[,-1])  
+data.UNH <- data.UNH[order(data.UNH$date),]
+data.UNH <- xts(data.UNH[,2:7],order.by=data.UNH[,1])
+names(data.UNH) <- paste(c("UNH.Open","UNH.High","UNH.Low","UNH.Close","UNH.Adjusted","UNH.Volume"))
+
+#JPM Data
+data.JPM <- cbind(date, data.JPM[,-1])  
+data.JPM <- data.JPM[order(data.JPM$date),]
+data.JPM <- xts(data.JPM[,2:7],order.by=data.JPM[,1])
+names(data.JPM) <- paste(c("JPM.Open","JPM.High","JPM.Low","JPM.Close","JPM.Adjusted","JPM.Volume"))
+
+#WFC Data
+data.WFC <- cbind(date, data.WFC[,-1])  
+data.WFC <- data.WFC[order(data.WFC$date),]
+data.WFC <- xts(data.WFC[,2:7],order.by=data.WFC[,1])
+names(data.WFC) <- paste(c("WFC.Open","WFC.High","WFC.Low","WFC.Close","WFC.Adjusted","WFC.Volume"))
+
+#CVS Data
+data.CVS <- cbind(date, data.CVS[,-1])  
+data.CVS <- data.CVS[order(data.CVS$date),]
+data.CVS <- xts(data.CVS[,2:7],order.by=data.CVS[,1])
+names(data.CVS) <- paste(c("CVS.Open","CVS.High","CVS.Low","CVS.Close","CVS.Adjusted","CVS.Volume"))
+
+#ET Data
+data.ET <- cbind(date, data.ET[,-1])  
+data.ET <- data.ET[order(data.ET$date),]
+data.ET <- xts(data.ET[,2:7],order.by=data.ET[,1])
+names(data.ET) <- paste(c("ET.Open","ET.High","ET.Low","ET.Close","ET.Adjusted","ET.Volume"))
+
+Close.Prices <- cbind(data.ASML$ASML.Close, data.CRM$CRM.Close,
+                      data.ET$ET.Close, data.XOM$XOM.Close, 
+                     data.JPM$JPM.Close, data.WFC$WFC.Close,
+                     data.UNH$UNH.Close, data.CVS$CVS.Close,
+                     data.PLD$PLD.Close, data.NLY$NLY.Close)                     
+
+Close.Prices[c(1:3,nrow(Close.Prices)),]
+
+multi.df <- cbind(index(Close.Prices),data.frame(Close.Prices))
+
+names(multi.df) <- paste(c("date","ASML","CRM", "ET", "XOM", "JPM", "WFC", "UNH", "CVS", "PLD", "NLY"))
+
+rownames(multi.df) <- seq(1,nrow(multi.df),1)
+
+multi.df[c(1:3,nrow(multi.df)),]
+
+Close.Prices_long <- reshape2::melt(multi.df, id.vars = "date")
+
+# Plotting each stock's closing prices in separate graphs within one plot
+ggplot(Close.Prices_long, aes(x = date, y = value)) +
+  geom_line() +
+  facet_wrap(~ variable, scales = "free_y", ncol = 2) +
+  labs(title = "Closing Prices of Stocks Over Time",
+       x = "Date",
+       y = "Price (USD)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# Historcal return  
+```{R}
+#Sector calculate
+multi.df$InformationTechnology.idx <- (multi.df$CRM/multi.df$CRM[1] + multi.df$ASML/multi.df$ASML[1])/2
+multi.df$Enegery.idx <- (multi.df$ET/multi.df$ET[1] + multi.df$XOM/multi.df$XOM[1])/2
+multi.df$Finance.idx <- (multi.df$JPM/multi.df$JPM[1] + multi.df$WFC/multi.df$WFC[1])/2
+multi.df$HealthCare.idx <- (multi.df$UNH/multi.df$UNH[1] + multi.df$CVS/multi.df$CVS[1])/2
+multi.df$RealEstate.idx <- (multi.df$PLD/multi.df$PLD[1] + multi.df$PLD/multi.df$PLD[1])/2
+
+#plot
+plot(x=multi.df$date,
+     y=multi.df$InformationTechnology.idx,
+     type="l",
+     xlab="Date",
+     ylab="Value of Investment ($)",
+     col="#435792",
+     lty=1,
+     lwd=2,
+     main="Value of $1 Investment")+
+lines(x=multi.df$date,
+      y=multi.df$Enegery.idx,
+      type="l",
+      col="orange",
+      lwd=1)+
+  lines(x=multi.df$date,
+      y=multi.df$Finance.idx,
+      type="l",
+      col="purple",
+      lwd=1)+
+  lines(x=multi.df$date,
+      y=multi.df$HealthCare.idx,
+      type="l",
+      col="navy",
+      lwd=1)+
+  lines(x=multi.df$date,
+      y=multi.df$RealEstate.idx,
+      type="l",
+      col="gold",
+      lwd=1)+
+abline(h=1,lty=1,col="black")
+legend("topleft",
+       c("Information Technology", "Energy", "Finance", "Health Care", "Real Estate"),
+       col = c("#435792", "orange", "purple", "navy", "gold"),
+       lty = c(1, 1, 1),
+       lwd = c(2, 1, 1))
+
+
+```
+```{r}
+multi <- data.ASML[,5]
+multi <- merge(multi,data.CRM[,5])
+multi <- merge(multi,data.NLY[,5])
+multi <- merge(multi,data.XOM[,5])
+multi <- merge(multi,data.PLD[,5])
+multi <- merge(multi,data.ET[,5])
+
+multi <- merge(multi,data.UNH[,5])
+multi <- merge(multi,data.WFC[,5])
+multi <- merge(multi,data.CVS[,5])
+multi <- merge(multi,data.JPM[,5])
+
+multi$ASML.Ret=Delt(multi$ASML.Adjusted)
+multi$CRM.Ret=Delt(multi$CRM.Adjusted)
+multi$NLY.Ret=Delt(multi$NLY.Adjusted)
+multi$XOM.Ret=Delt(multi$XOM.Adjusted)
+multi$NLY.Ret=Delt(multi$PLD.Adjusted)
+multi$XOM.Ret=Delt(multi$ET.Adjusted)
+
+multi$UNH.Ret=Delt(multi$UNH.Adjusted)
+multi$WFC.Ret=Delt(multi$WFC.Adjusted)
+multi$CVS.Ret=Delt(multi$CVS.Adjusted)
+multi$JPM.Ret=Delt(multi$JPM.Adjusted)
+
+multi_eq <- data.ASML[,5]
+multi_eq <- merge(multi_eq,data.CRM[,5])
+# multi_eq <- merge(multi_eq,data.XOM[,5])
+# multi_eq <- merge(multi_eq,data.NLY[,5])
+# multi_eq <- merge(multi_eq,data.PLD[,5])
+# multi_eq <- merge(multi_eq,data.ET[,5])
+multi_eq <- merge(multi_eq,data.UNH[,5])
+multi_eq <- merge(multi_eq,data.WFC[,5])
+multi_eq <- merge(multi_eq,data.CVS[,5])
+multi_eq <- merge(multi_eq,data.JPM[,5])
+
+# multi_eq$ASML.Ret=Delt(multi_eq$ASML.Adjusted)
+# multi_eq$CRM.Ret=Delt(multi_eq$CRM.Adjusted)
+# multi_eq$XOM.Ret=Delt(multi_eq$XOM.Adjusted)
+# multi_eq$NLY.Ret=Delt(multi_eq$NLY.Adjusted)
+#Q1
+ew.q1 <- subset(multi_eq, index(multi_eq) > "2019-01-01")
+ew.q1 <- subset(ew.q1, index(ew.q1) < "2019-03-31")
+ew.q1[c(1:4,nrow(ew.q1)),]
+ew.q1$ASML <- cumprod(ew.q1$ASML.Ret+1)
+ew.q1$CRM <- cumprod(ew.q1$CRM.Ret+1)
+# ew.q1$XOM <- cumprod(ew.q1$XOM.Ret+1)
+# ew.q1$NLY <- cumprod(ew.q1$NLY.Ret+1)
+# ew.q1$PLD <- cumprod(ew.q1$PLD.Ret+1)
+# ew.q1$ET <- cumprod(ew.q1$ET.Ret+1)
+
+ew.q1$UNH <- cumprod(ew.q1$UNHL.Ret+1)
+ew.q1$WFC <- cumprod(ew.q1$WFC.Ret+1)
+ew.q1$CVS <- cumprod(ew.q1$CVS.Ret+1)
+ew.q1$JPM <- cumprod(ew.q1$JPM.Ret+1)
+
+ew.q1$EWPort<-(ew.q1$ASML+ew.q1$CRM+ew.q1$XOM+ew.q1$NLY)/4
+ew.q1$EWRet<-rbind(ew.q1$EWPort[1]-1,Delt(ew.q1$EWPort)[-1,])
+
+# #Q2
+ew.q2 <- subset(multi_eq, index(multi_eq) > "2019-04-01")
+ew.q2 <- subset(ew.q2, index(ew.q2) < "2019-06-30")
+ew.q2[c(1:4,nrow(ew.q2)),]
+ew.q2$ASML <- cumprod(ew.q2$ASML.Ret+1)
+ew.q2$CRM <- cumprod(ew.q2$CRM.Ret+1)
+ew.q2$XOM <- cumprod(ew.q2$XOM.Ret+1)
+ew.q2$NLY <- cumprod(ew.q2$NLY.Ret+1)
+ew.q2$EWPort<-(ew.q2$ASML+ew.q2$CRM+ew.q2$XOM+ew.q2$NLY)/4
+ew.q2$EWRet<-rbind(ew.q2$EWPort[1]-1,Delt(ew.q2$EWPort)[-1,])
+#Q3
+ew.q3 <- subset(multi_eq, index(multi_eq) > "2019-07-01")
+ew.q3 <- subset(ew.q3, index(ew.q3) < "2019-09-30")
+ew.q3[c(1:4,nrow(ew.q3)),]
+ew.q3$ASML <- cumprod(ew.q3$ASML.Ret+1)
+ew.q3$CRM <- cumprod(ew.q3$CRM.Ret+1)
+ew.q3$XOM <- cumprod(ew.q3$XOM.Ret+1)
+ew.q3$NLY <- cumprod(ew.q3$NLY.Ret+1)
+ew.q3$EWPort<-(ew.q3$ASML+ew.q3$CRM+ew.q3$XOM+ew.q3$NLY)/4
+ew.q3$EWRet<-rbind(ew.q3$EWPort[1]-1,Delt(ew.q3$EWPort)[-1,])
+# #Q4
+ew.q4 <- subset(multi_eq, index(multi_eq) >= "2019-10-01")
+ew.q4 <- subset(ew.q4, index(ew.q4) < "2019-12-31")
+ew.q4[c(1:4,nrow(ew.q4)),]
+ew.q4$ASML <- cumprod(ew.q4$ASML.Ret+1)
+ew.q4$CRM <- cumprod(ew.q4$CRM.Ret+1)
+ew.q4$XOM <- cumprod(ew.q4$XOM.Ret+1)
+ew.q4$NLY <- cumprod(ew.q4$NLY.Ret+1)
+ew.q4$EWPort<-(ew.q4$ASML+ew.q4$CRM+ew.q4$XOM+ew.q4$NLY)/4
+ew.q4$EWRet<-rbind(ew.q4$EWPort[1]-1,Delt(ew.q4$EWPort)[-1,])
+# #Q5
+ew.q5 <- subset(multi_eq, index(multi_eq) > "2020-01-01")
+ew.q5 <- subset(ew.q5, index(ew.q5) < "2020-03-31")
+ew.q5[c(1:4,nrow(ew.q5)),]
+ew.q5$ASML <- cumprod(ew.q5$ASML.Ret+1)
+ew.q5$CRM <- cumprod(ew.q5$CRM.Ret+1)
+ew.q5$XOM <- cumprod(ew.q5$XOM.Ret+1)
+ew.q5$NLY <- cumprod(ew.q5$NLY.Ret+1)
+ew.q5$EWPort<-(ew.q5$ASML+ew.q5$CRM+ew.q5$XOM+ew.q5$NLY)/4
+ew.q5$EWRet<-rbind(ew.q5$EWPort[1]-1,Delt(ew.q5$EWPort)[-1,])
+# #Q6
+ew.q6 <- subset(multi_eq, index(multi_eq) > "2020-04-01")
+ew.q6 <- subset(ew.q6, index(ew.q6) < "2020-06-30")
+ew.q6[c(1:4,nrow(ew.q6)),]
+ew.q6$ASML <- cumprod(ew.q6$ASML.Ret+1)
+ew.q6$CRM <- cumprod(ew.q6$CRM.Ret+1)
+ew.q6$XOM <- cumprod(ew.q6$XOM.Ret+1)
+ew.q6$NLY <- cumprod(ew.q6$NLY.Ret+1)
+ew.q6$EWPort<-(ew.q6$ASML+ew.q6$CRM+ew.q6$XOM+ew.q6$NLY)/4
+ew.q6$EWRet<-rbind(ew.q6$EWPort[1]-1,Delt(ew.q6$EWPort)[-1,])
+# #Q7
+ew.q7 <- subset(multi_eq, index(multi_eq) > "2020-07-01")
+ew.q7 <- subset(ew.q7, index(ew.q7) < "2020-09-30")
+ew.q7[c(1:4,nrow(ew.q7)),]
+ew.q7$ASML <- cumprod(ew.q7$ASML.Ret+1)
+ew.q7$CRM <- cumprod(ew.q7$CRM.Ret+1)
+ew.q7$XOM <- cumprod(ew.q7$XOM.Ret+1)
+ew.q7$NLY <- cumprod(ew.q7$NLY.Ret+1)
+ew.q7$EWPort<-(ew.q7$ASML+ew.q7$CRM+ew.q7$XOM+ew.q7$NLY)/4
+ew.q7$EWRet<-rbind(ew.q7$EWPort[1]-1,Delt(ew.q7$EWPort)[-1,])
+#Q8
+ew.q8 <- subset(multi_eq, index(multi_eq) > "2020-10-01")
+ew.q8 <- subset(ew.q8, index(ew.q8) < "2020-12-31")
+ew.q8[c(1:4,nrow(ew.q8)),]
+ew.q8$ASML <- cumprod(ew.q8$ASML.Ret+1)
+ew.q8$CRM <- cumprod(ew.q8$CRM.Ret+1)
+ew.q8$XOM <- cumprod(ew.q8$XOM.Ret+1)
+ew.q8$NLY <- cumprod(ew.q8$NLY.Ret+1)
+ew.q8$EWPort<-(ew.q8$ASML+ew.q8$CRM+ew.q8$XOM+ew.q8$NLY)/4
+ew.q8$EWRet<-rbind(ew.q8$EWPort[1]-1,Delt(ew.q8$EWPort)[-1,])
+#Q9
+ew.q9 <- subset(multi_eq, index(multi_eq) > "2021-01-01")
+ew.q9 <- subset(ew.q9, index(ew.q9) < "2021-03-31")
+ew.q9[c(1:4,nrow(ew.q9)),]
+ew.q9$ASML <- cumprod(ew.q9$ASML.Ret+1)
+ew.q9$CRM <- cumprod(ew.q9$CRM.Ret+1)
+ew.q9$XOM <- cumprod(ew.q9$XOM.Ret+1)
+ew.q9$NLY <- cumprod(ew.q9$NLY.Ret+1)
+ew.q9$EWPort<-(ew.q9$ASML+ew.q9$CRM+ew.q9$XOM+ew.q9$NLY)/4
+ew.q9$EWRet<-rbind(ew.q9$EWPort[1]-1,Delt(ew.q9$EWPort)[-1,])
+#Q10
+ew.q10 <- subset(multi_eq, index(multi_eq) > "2021-04-01")
+ew.q10 <- subset(ew.q10, index(ew.q10) < "2021-06-30")
+ew.q10[c(1:4,nrow(ew.q10)),]
+ew.q10$ASML <- cumprod(ew.q10$ASML.Ret+1)
+ew.q10$CRM <- cumprod(ew.q10$CRM.Ret+1)
+ew.q10$XOM <- cumprod(ew.q10$XOM.Ret+1)
+ew.q10$NLY <- cumprod(ew.q10$NLY.Ret+1)
+ew.q10$EWPort<-(ew.q10$ASML+ew.q10$CRM+ew.q10$XOM+ew.q10$NLY)/4
+ew.q10$EWRet<-rbind(ew.q10$EWPort[1]-1,Delt(ew.q10$EWPort)[-1,])
+#Q11
+ew.q11 <- subset(multi_eq, index(multi_eq) > "2021-07-01")
+ew.q11 <- subset(ew.q11, index(ew.q11) < "2021-09-30")
+ew.q11[c(1:4,nrow(ew.q11)),]
+ew.q11$ASML <- cumprod(ew.q11$ASML.Ret+1)
+ew.q11$CRM <- cumprod(ew.q11$CRM.Ret+1)
+ew.q11$XOM <- cumprod(ew.q11$XOM.Ret+1)
+ew.q11$NLY <- cumprod(ew.q11$NLY.Ret+1)
+ew.q11$EWPort<-(ew.q11$ASML+ew.q11$CRM+ew.q11$XOM+ew.q11$NLY)/4
+ew.q11$EWRet<-rbind(ew.q11$EWPort[1]-1,Delt(ew.q11$EWPort)[-1,])
+#Q12
+ew.q12 <- subset(multi_eq, index(multi_eq) > "2021-10-01")
+ew.q12 <- subset(ew.q12, index(ew.q12) < "2021-12-31")
+ew.q12[c(1:4,nrow(ew.q12)),]
+ew.q12$ASML <- cumprod(ew.q12$ASML.Ret+1)
+ew.q12$CRM <- cumprod(ew.q12$CRM.Ret+1)
+ew.q12$XOM <- cumprod(ew.q12$XOM.Ret+1)
+ew.q12$NLY <- cumprod(ew.q12$NLY.Ret+1)
+ew.q12$EWPort<-(ew.q12$ASML+ew.q12$CRM+ew.q12$XOM+ew.q12$NLY)/4
+ew.q12$EWRet<-rbind(ew.q12$EWPort[1]-1,Delt(ew.q12$EWPort)[-1,])
+#Q13
+ew.q13 <- subset(multi_eq, index(multi_eq) > "2022-01-01")
+ew.q13 <- subset(ew.q13, index(ew.q13) < "2022-03-31")
+ew.q13[c(1:4,nrow(ew.q13)),]
+ew.q13$ASML <- cumprod(ew.q13$ASML.Ret+1)
+ew.q13$CRM <- cumprod(ew.q13$CRM.Ret+1)
+ew.q13$XOM <- cumprod(ew.q13$XOM.Ret+1)
+ew.q13$NLY <- cumprod(ew.q13$NLY.Ret+1)
+ew.q13$EWPort<-(ew.q13$ASML+ew.q13$CRM+ew.q13$XOM+ew.q13$NLY)/4
+ew.q13$EWRet<-rbind(ew.q13$EWPort[1]-1,Delt(ew.q13$EWPort)[-1,])
+#Q14
+ew.q14 <- subset(multi_eq, index(multi_eq) > "2022-04-01")
+ew.q14 <- subset(ew.q14, index(ew.q14) < "2022-06-30")
+ew.q14[c(1:4,nrow(ew.q14)),]
+ew.q14$ASML <- cumprod(ew.q14$ASML.Ret+1)
+ew.q14$CRM <- cumprod(ew.q14$CRM.Ret+1)
+ew.q14$XOM <- cumprod(ew.q14$XOM.Ret+1)
+ew.q14$NLY <- cumprod(ew.q14$NLY.Ret+1)
+ew.q14$EWPort<-(ew.q14$ASML+ew.q14$CRM+ew.q14$XOM+ew.q14$NLY)/4
+ew.q14$EWRet<-rbind(ew.q14$EWPort[1]-1,Delt(ew.q14$EWPort)[-1,])
+#Q15
+ew.q15 <- subset(multi_eq, index(multi_eq) > "2022-07-01")
+ew.q15 <- subset(ew.q15, index(ew.q15) < "2022-09-30")
+ew.q15[c(1:4,nrow(ew.q15)),]
+ew.q15$ASML <- cumprod(ew.q15$ASML.Ret+1)
+ew.q15$CRM <- cumprod(ew.q15$CRM.Ret+1)
+ew.q15$XOM <- cumprod(ew.q15$XOM.Ret+1)
+ew.q15$NLY <- cumprod(ew.q15$NLY.Ret+1)
+ew.q15$EWPort<-(ew.q15$ASML+ew.q15$CRM+ew.q15$XOM+ew.q15$NLY)/4
+ew.q15$EWRet<-rbind(ew.q15$EWPort[1]-1,Delt(ew.q15$EWPort)[-1,])
+#Q16
+ew.q16 <- subset(multi_eq, index(multi_eq) > "2022-10-01")
+ew.q16 <- subset(ew.q16, index(ew.q16) < "2022-12-31")
+ew.q16[c(1:4,nrow(ew.q16)),]
+ew.q16$ASML <- cumprod(ew.q16$ASML.Ret+1)
+ew.q16$CRM <- cumprod(ew.q16$CRM.Ret+1)
+ew.q16$XOM <- cumprod(ew.q16$XOM.Ret+1)
+ew.q16$NLY <- cumprod(ew.q16$NLY.Ret+1)
+ew.q16$EWPort<-(ew.q16$ASML+ew.q16$CRM+ew.q16$XOM+ew.q16$NLY)/4
+ew.q16$EWRet<-rbind(ew.q16$EWPort[1]-1,Delt(ew.q16$EWPort)[-1,])
+#Q17
+ew.q17 <- subset(multi_eq, index(multi_eq) > "2023-01-01")
+ew.q17 <- subset(ew.q17, index(ew.q17) < "2023-03-31")
+ew.q17[c(1:4,nrow(ew.q17)),]
+ew.q17$ASML <- cumprod(ew.q17$ASML.Ret+1)
+ew.q17$CRM <- cumprod(ew.q17$CRM.Ret+1)
+ew.q17$XOM <- cumprod(ew.q17$XOM.Ret+1)
+ew.q17$NLY <- cumprod(ew.q17$NLY.Ret+1)
+ew.q17$EWPort<-(ew.q17$ASML+ew.q17$CRM+ew.q17$XOM+ew.q17$NLY)/4
+ew.q17$EWRet<-rbind(ew.q17$EWPort[1]-1,Delt(ew.q17$EWPort)[-1,])
+#Q18
+ew.q18 <- subset(multi_eq, index(multi_eq) > "2023-04-01")
+ew.q18 <- subset(ew.q18, index(ew.q18) < "2023-06-30")
+ew.q18[c(1:4,nrow(ew.q18)),]
+ew.q18$ASML <- cumprod(ew.q18$ASML.Ret+1)
+ew.q18$CRM <- cumprod(ew.q18$CRM.Ret+1)
+ew.q18$XOM <- cumprod(ew.q18$XOM.Ret+1)
+ew.q18$NLY <- cumprod(ew.q18$NLY.Ret+1)
+ew.q18$EWPort<-(ew.q18$ASML+ew.q18$CRM+ew.q18$XOM+ew.q18$NLY)/4
+ew.q18$EWRet<-rbind(ew.q18$EWPort[1]-1,Delt(ew.q18$EWPort)[-1,])
+#Q19
+ew.q19 <- subset(multi_eq, index(multi_eq) > "2023-07-01")
+ew.q19 <- subset(ew.q19, index(ew.q16) < "2023-09-30")
+ew.q16[c(1:4,nrow(ew.q16)),]
+ew.q19$ASML <- cumprod(ew.q19$ASML.Ret+1)
+ew.q19$CRM <- cumprod(ew.q19$CRM.Ret+1)
+ew.q19$XOM <- cumprod(ew.q19$XOM.Ret+1)
+ew.q19$NLY <- cumprod(ew.q19$NLY.Ret+1)
+ew.q19$EWPort<-(ew.q19$ASML+ew.q19$CRM+ew.q19$XOM+ew.q19$NLY)/4
+ew.q19$EWRet<-rbind(ew.q19$EWPort[1]-1,Delt(ew.q19$EWPort)[-1,])
+#Q16
+ew.q20 <- subset(multi_eq, index(multi_eq) > "2023-10-01")
+ew.q20 <- subset(ew.q20, index(ew.q20) < "2023-12-31")
+ew.q20[c(1:4,nrow(ew.q20)),]
+ew.q20$ASML <- cumprod(ew.q20$ASML.Ret+1)
+ew.q20$CRM <- cumprod(ew.q20$CRM.Ret+1)
+ew.q20$XOM <- cumprod(ew.q20$XOM.Ret+1)
+ew.q20$NLY <- cumprod(ew.q20$NLY.Ret+1)
+ew.q20$EWPort<-(ew.q20$ASML+ew.q20$CRM+ew.q20$XOM+ew.q20$NLY)/4
+ew.q20$EWRet<-rbind(ew.q20$EWPort[1]-1,Delt(ew.q20$EWPort)[-1,])
+ew.all<- rbind(ew.q1,ew.q2,ew.q3,ew.q4,ew.q5,ew.q6,ew.q7,ew.q8,ew.q9,ew.q10,
+ew.q11,ew.q12, ew.q13,ew.q14,ew.q15,ew.q16,ew.q17,ew.q18,ew.q19,ew.q20)
+
+ew.all$total_sum <- rowSums(ew.all[, -1], na.rm = TRUE)
+plot(ew.all$total_sum)
+```
+
